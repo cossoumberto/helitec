@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="helitec.contabilita.FXMLController">
   <tabs>
     <Tab text="Inserisci Fattura">
          <content>
@@ -33,31 +33,32 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <TextField promptText="Fornitore" GridPane.columnIndex="1" />
-                        <TextField promptText="Numero Fattura" GridPane.rowIndex="1" />
-                        <DatePicker promptText="Data Fattura" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <ComboBox prefWidth="150.0" promptText="IVA" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                        <TextField promptText="Cantiere" GridPane.rowIndex="2" />
-                        <TextField promptText="Lavorazione" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <ComboBox prefWidth="150.0" promptText="Voce Capitolato" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                        <TextField promptText="Importo NO IVA" GridPane.rowIndex="3" />
-                        <TextField promptText="Importo Tot Lavorazione" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <Button mnemonicParsing="false" prefWidth="150.0" text="Inserisci" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                        <TextField fx:id="IFtxtFornitore" promptText="Fornitore" GridPane.columnIndex="1" />
+                        <TextField fx:id="IFtxtNum" promptText="Numero Fattura" GridPane.rowIndex="1" />
+                        <DatePicker fx:id="IFdata" promptText="Data Fattura" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <ComboBox fx:id="IFboxIVA" prefWidth="170.0" promptText="IVA" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                        <ComboBox fx:id="IFboxCantieri" prefWidth="170.0" promptText="Cantiere" GridPane.rowIndex="2" />
+                        <TextField fx:id="IFtxtLavorazione" promptText="Lavorazione" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <ComboBox fx:id="IFboxVoci" prefWidth="170.0" promptText="Voce Capitolato" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                        <TextField fx:id="IFtxtImportoNoIva" promptText="Importo NO IVA" GridPane.rowIndex="3" />
+                        <TextField fx:id="IFtxtImportoTot" onAction="#IFsetImportoTot" promptText="Importo Tot Lavorazione" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Button fx:id="IFbtnIns" mnemonicParsing="false" onAction="#IFinserisci" prefWidth="170.0" text="Inserisci" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                      </children>
                      <padding>
                         <Insets left="20.0" right="20.0" top="20.0" />
                      </padding>
                   </GridPane>
-                  <TextArea editable="false">
+                  <TextArea fx:id="IFtxtArea" editable="false">
                      <VBox.margin>
                         <Insets left="20.0" right="20.0" top="20.0" />
                      </VBox.margin>
                   </TextArea>
-                  <HBox alignment="TOP_CENTER" spacing="160.0">
+                  <HBox alignment="TOP_CENTER" spacing="60.0">
                      <children>
-                        <Button mnemonicParsing="false" text="Cancella" />
-                        <Button mnemonicParsing="false" text="Reset" />
-                        <Button mnemonicParsing="false" text="Conferma" />
+                        <TextField fx:id="IFtxtImportoTotFattura" editable="false" promptText="Importo Fattura" />
+                        <Button fx:id="IFbtnCanc" mnemonicParsing="false" onAction="#IFcancella" text="Cancella" />
+                        <Button fx:id="IFbtnReset" mnemonicParsing="false" onAction="#IFreset" text="Reset" />
+                        <Button fx:id="IFbtnConfema" mnemonicParsing="false" onAction="#IFconferma" text="Conferma" />
                      </children>
                      <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
