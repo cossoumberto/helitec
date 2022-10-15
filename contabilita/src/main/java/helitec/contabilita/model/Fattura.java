@@ -1,6 +1,9 @@
 package helitec.contabilita.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +18,8 @@ public class Fattura {
 	private Double importoPagato;
 	private String note;
 	private List<Importo> importi;
-	 
 	
+
 	public Fattura(String numero, LocalDate data, String fornitore, Double importoNoIva, Integer iva, Double importoTot,
 			Double importoPagato, String note) {
 		super();
@@ -31,6 +34,30 @@ public class Fattura {
 		this.importi = new ArrayList<>();
 	}
 
+	public Fattura() {
+		this.numero = null;
+		this.data = null;
+		this.fornitore = null;
+		this.importoNoIva = null;
+		this.iva = null;
+		this.importoTot = null;
+		this.importoPagato = null;
+		this.note = null;
+		this.importi = new ArrayList<>();
+	}
+
+
+	public Fattura(Fattura f) {
+		this.numero = f.numero;
+		this.data = f.data;
+		this.fornitore = f.fornitore;
+		this.importoNoIva = f.importoNoIva;
+		this.iva = f.iva;
+		this.importoTot = f.importoTot;
+		this.importoPagato = f.importoPagato;
+		this.note = f.note;
+		this.importi = new ArrayList<Importo>(f.importi);
+	}
 
 	public String getNumero() {
 		return numero;
@@ -75,6 +102,10 @@ public class Fattura {
 	public Integer getIva() {
 		return iva;
 	}
+	
+	public Double getIvaDecimale() {
+		return iva.doubleValue()/100;
+	}
 
 
 	public void setIva(Integer iva) {
@@ -110,14 +141,52 @@ public class Fattura {
 		this.note = note;
 	}
 
+	public List<Importo> getImporti() {
+		return importi;
+	}
+	
+	public void addImporto (Importo i) {
+		this.importi.add(i);
+		if(this.importoNoIva==null || this.importoTot==null) {
+			this.importoNoIva = 0.0;
+			this.importoTot = 0.0;
+		}
+		this.importoNoIva += i.getImporto();
+		BigDecimal x = new BigDecimal(this.importoNoIva).setScale(2, RoundingMode.HALF_EVEN);
+		this.importoNoIva = x.doubleValue();
+		this.importoTot += i.getImportoIva();
+		BigDecimal y = new BigDecimal(this.importoTot).setScale(2, RoundingMode.HALF_EVEN);
+		this.importoTot= y.doubleValue();
+	}
+	
+	public void cancLastImporto () {
+		this.importoNoIva -= importi.get(importi.size()-1).getImporto();
+		BigDecimal x = new BigDecimal(this.importoNoIva).setScale(2, RoundingMode.HALF_EVEN);
+		this.importoNoIva = x.doubleValue();
+		this.importoTot -= importi.get(importi.size()-1).getImportoIva();
+		BigDecimal y = new BigDecimal(this.importoTot).setScale(2, RoundingMode.HALF_EVEN);
+		this.importoTot= y.doubleValue();
+		this.importi.remove(importi.size()-1);
+	}
+
+
+	public String toStringConImporti() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		String s = "Fornitore: " + fornitore + "\nFattura " + numero + " del " + data.format(formatter) + "     IVA = " + iva +"%\n";
+		for (Importo i : importi)
+			s += "\n\n" + i.toString();
+		if(this.note!=null)
+			s += "\n\n\n" + this.note;
+		return s;
+	}
+
 
 	@Override
 	public String toString() {
 		return "Fattura [numero=" + numero + ", data=" + data + ", fornitore=" + fornitore + ", importoNoIva="
 				+ importoNoIva + ", iva=" + iva + ", importoTot=" + importoTot + ", importoPagato=" + importoPagato
-				+ "]";
+				+ ", note=" + note + "]";
 	}
-
 
 	@Override
 	public int hashCode() {

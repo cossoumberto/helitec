@@ -6,14 +6,16 @@ public class Importo {
 	private Fattura fattura;
 	private Lavorazione lavorazione;
 	private Double importo;
+	private Double importoIva;
 	private String note;
 	
-	public Importo(Integer numero, Fattura fattura, Lavorazione lavorazione, Double importo, String note) {
+	public Importo(Integer numero, Fattura fattura, Lavorazione lavorazione, Double importo, Double importoIva, String note) {
 		super();
 		this.numero = numero;
 		this.fattura = fattura;
 		this.lavorazione = lavorazione;
 		this.importo = importo;
+		this.importoIva = importoIva;
 		this.note = note;
 	}
 
@@ -44,6 +46,14 @@ public class Importo {
 	public Double getImporto() {
 		return importo;
 	}
+	
+	public Double getImportoIva() {
+		return importoIva;
+	}
+
+	public void setImportoIva(Double importoIva) {
+		this.importoIva = importoIva;
+	}
 
 	public void setImporto(Double importo) {
 		this.importo = importo;
@@ -59,8 +69,26 @@ public class Importo {
 
 	@Override
 	public String toString() {
-		return "Importo [numero=" + numero + ", fattura=" + fattura + ", lavorazione=" + lavorazione + ", importo="
-				+ importo + "]";
+		String s = numero + ": ";
+		if(lavorazione!=null) {
+			if(lavorazione.getCantiere()==null)
+				s += "-- / ";
+			else 
+				s += lavorazione.getCantiere().toString() + " / ";
+			if(lavorazione.getDescrizione()==null)
+				s += "--";
+			else 
+				s += lavorazione.getDescrizione();
+			if(lavorazione.getVoceCapitolato()==null)
+				s += "\n     --";
+			else
+				s += "\n     " + lavorazione.getVoceCapitolato();
+			s += "\n     " + this.importo + " / " + this.importoIva;
+		} else 
+			s += "-- / --\n     --\n     " +  + this.importo + " / " + this.importoIva;
+		if(note!=null)
+			s += "\n     Note: " + note;
+		return s;			 
 	}
 
 	@Override

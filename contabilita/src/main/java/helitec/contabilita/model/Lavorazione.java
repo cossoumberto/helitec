@@ -1,5 +1,6 @@
 package helitec.contabilita.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Lavorazione {
@@ -16,6 +17,15 @@ public class Lavorazione {
 		this.voceCapitolato = voceCapitolato;
 		this.cantiere = cantiere;
 		this.importo = importo;
+		this.importi = new ArrayList<>();
+	}
+
+	public Lavorazione() {
+		this.descrizione = null;
+		this.voceCapitolato = null;
+		this.cantiere = null;
+		this.importo = null;
+		this.importi = new ArrayList<>();
 	}
 
 	public String getDescrizione() {
