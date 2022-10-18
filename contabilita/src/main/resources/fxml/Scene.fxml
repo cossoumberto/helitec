@@ -58,11 +58,11 @@
                         <Insets left="20.0" right="20.0" top="20.0" />
                      </VBox.margin>
                   </TextArea>
-                  <TextArea fx:id="IFtxtNoteFattura" maxHeight="50.0" promptText="Note Fattura">
+                  <TextField fx:id="IFtxtNoteFattura" prefHeight="40.0" promptText="Note Fattura">
                      <VBox.margin>
                         <Insets left="20.0" right="20.0" top="20.0" />
                      </VBox.margin>
-                  </TextArea>
+                  </TextField>
                   <GridPane hgap="10.0" prefWidth="170.0" vgap="20.0">
                     <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -75,9 +75,10 @@
                     </rowConstraints>
                      <children>
                         <TextField fx:id="IFtxtImportoTotFattura" editable="false" maxWidth="170.0" prefWidth="170.0" promptText="Importo Fattura" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
-                        <Button fx:id="IFbtnCanc" mnemonicParsing="false" onAction="#IFcancella" prefWidth="170.0" text="Cancella" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                        <Button fx:id="IFbtnCanc" mnemonicParsing="false" onAction="#IFcancella" prefWidth="170.0" text="Cancella Inserimento" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                         <Button fx:id="IFbtnReset" mnemonicParsing="false" onAction="#IFreset" prefWidth="170.0" text="Reset" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                         <Button fx:id="IFbtnConfema" mnemonicParsing="false" onAction="#IFconferma" prefWidth="170.0" text="Conferma" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                        <Button fx:id="IFbtnCancArea" disable="true" mnemonicParsing="false" onAction="#IFcancellaArea" prefWidth="170.0" text="Cancella solo Output" />
                      </children>
                      <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
