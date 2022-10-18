@@ -1,5 +1,7 @@
 package helitec.contabilita.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +60,15 @@ public class Lavorazione {
 
 	public void setImporto(Double importo) {
 		this.importo = importo;
+	}
+	
+	public void addImporto (Importo i) {
+		this.importi.add(i);
+		if(this.importo==null) 
+			this.importo = 0.0;
+		this.importo += i.getImporto();
+		BigDecimal x = new BigDecimal(this.importo).setScale(2, RoundingMode.HALF_EVEN);
+		this.importo = x.doubleValue();
 	}
 
 	@Override

@@ -77,7 +77,7 @@ public class FXMLController {
     private TextArea IFtxtArea; // Value injected by FXMLLoader
     
     @FXML // fx:id="IFtxtNoteFattura"
-    private TextArea IFtxtNoteFattura; // Value injected by FXMLLoader
+    private TextField IFtxtNoteFattura; // Value injected by FXMLLoader
 
     @FXML // fx:id="IFbtnCanc"
     private Button IFbtnCanc; // Value injected by FXMLLoader
@@ -87,16 +87,30 @@ public class FXMLController {
 
     @FXML // fx:id="IFbtnConfema"
     private Button IFbtnConfema; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="IFbtnCancArea"
+    private Button IFbtnCancArea; // Value injected by FXMLLoader
 
     @FXML
     void IFcancella(ActionEvent event) {
     	if(f!=null && f.getImporti().size()>0 && this.IFtxtArea.getText().equals(f.toStringConImporti())) {
     		f.cancLastImporto();
     		this.IFtxtArea.setText(f.toStringConImporti());
+    		this.IFtxtArea.appendText("");
     		this.IFtxtImportoTotFattura.setText(f.getImportoTot().toString());
        	} else if(f!=null)
        		this.IFtxtArea.setText(f.toStringConImporti());
-    }	
+    }
+    
+    @FXML
+    void IFcancellaArea(ActionEvent event) {
+    	if(f==null) {
+	    	this.IFtxtArea.clear();
+	    	this.IFtxtNoteFattura.clear();
+	    	this.IFtxtImportoTotFattura.clear();
+	    	this.IFbtnCancArea.setDisable(true);
+    	}
+    }
 
     @FXML
     void IFconferma(ActionEvent event) {
@@ -113,6 +127,7 @@ public class FXMLController {
     		this.IFtxtNum.setEditable(true);
     		this.IFdata.setEditable(true);
     		this.IFboxIVA.setDisable(false);
+    		this.IFbtnCancArea.setDisable(false);
     	} else if(f!=null && f.getImporti().size()==0)
     		this.IFtxtArea.setText(f.toStringConImporti() + "\n\nInserire importi");
     	else
@@ -122,13 +137,18 @@ public class FXMLController {
     @FXML
     void IFinserisci(ActionEvent event) {
     	//Gestione inserimento dati comuni della fattura
-    	if(f==null) {
+    	if(f==null || (f!=null && f.getImporti().size()==0)) {
     		f = new Fattura();
     		if(this.IFtxtFornitore.getText().trim().length()!=0)
     				this.f.setFornitore(this.IFtxtFornitore.getText().trim().toUpperCase());
     		if(this.IFtxtNum.getText().trim().length()!=0)
     			this.f.setNumero(this.IFtxtNum.getText().trim().toUpperCase());
     		this.f.setData(this.IFdata.getValue());
+    		if(model.verificaIdFattura(f)==true) {
+    			f =  null;
+    			this.IFtxtArea.setText("Inseriti dati fattura già esistente");
+    			return;
+    		}
     		this.f.setIva(this.IFboxIVA.getValue());
     		if(this.f.getFornitore()==null || this.f.getNumero()==null || this.f.getData()==null || this.f.getIva()==null) {
     			f = null;
@@ -136,25 +156,7 @@ public class FXMLController {
         		return;
         	}
     	}
-    	
-    	//Gestione inserimento lavorazione
     	this.IFtxtArea.setText(f.toStringConImporti());
-    	Lavorazione l = null;
-    	if(this.IFboxCantieri.getValue()!=null || this.IFtxtLavorazione.getText().trim().length()!=0) {
-    		l = new Lavorazione();
-    		if(this.IFboxCantieri.getValue()!=null) 
-    			l.setCantiere(this.IFboxCantieri.getValue());
-    		if(this.IFtxtLavorazione.getText().trim().length()!=0)
-    			l.setDescrizione(this.IFtxtLavorazione.getText().trim().toUpperCase());
-    		if(this.IFboxVoci.getValue()!=null)
-    			l.setVoceCapitolato(this.IFboxVoci.getValue());
-    		if(!ll.contains(l))
-    			ll.add(l);
-    		else 
-    			for(Lavorazione lav : ll)
-    				if(lav.equals(l))
-    					l = lav;
-    	}
     	
     	//Gestione inserimento importi numerici
     	Double importoLavNoIva = null;
@@ -180,6 +182,24 @@ public class FXMLController {
 			//e.printStackTrace();
 		}	
     	
+    	//Gestione inserimento lavorazione
+    	Lavorazione l = null;
+    	if(this.IFboxCantieri.getValue()!=null || this.IFtxtLavorazione.getText().trim().length()!=0) {
+    		l = new Lavorazione();
+    		if(this.IFboxCantieri.getValue()!=null) 
+    			l.setCantiere(this.IFboxCantieri.getValue());
+    		if(this.IFtxtLavorazione.getText().trim().length()!=0)
+    			l.setDescrizione(this.IFtxtLavorazione.getText().trim().toUpperCase());
+    		if(this.IFboxVoci.getValue()!=null)
+    			l.setVoceCapitolato(this.IFboxVoci.getValue());
+    		if(!ll.contains(l))
+    			ll.add(l);
+    		else 
+    			for(Lavorazione lav : ll)
+    				if(lav.equals(l))
+    					l = lav;
+    	}
+    	
     	//Creazione importo per fattura
     	Importo i = null;
     	if(this.IFtxtNoteImporto.getText().trim().length()!=0)
@@ -191,13 +211,14 @@ public class FXMLController {
     	
     	//Creazione e visualizzazione risultati + disattivazione input dati comuni fattura 
     	this.IFtxtArea.setText(f.toStringConImporti());
+    	this.IFtxtArea.appendText("");
     	this.IFtxtImportoTotFattura.setText(this.f.getImportoTot().toString());
     	this.IFtxtFornitore.setEditable(false);
     	this.IFtxtNum.setEditable(false);
     	this.IFdata.setEditable(false);
     	this.IFboxIVA.setDisable(true);
     }
-    
+   
    @FXML
     void IFsetImportoTot(ActionEvent event) {
 	   	try {
@@ -234,8 +255,9 @@ public class FXMLController {
     	this.IFtxtArea.clear();
     	this.IFtxtNoteFattura.clear();
     	this.IFtxtImportoTotFattura.clear();
+    	this.IFbtnCancArea.setDisable(true);
     }
-
+ 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert IFtxtFornitore != null : "fx:id=\"IFtxtFornitore\" was not injected: check your FXML file 'Scene.fxml'.";
@@ -255,6 +277,7 @@ public class FXMLController {
         assert IFbtnCanc != null : "fx:id=\"IFbtnCanc\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFbtnReset != null : "fx:id=\"IFbtnReset\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFbtnConfema != null : "fx:id=\"IFbtnConfema\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IFbtnCancArea != null : "fx:id=\"IFbtnCancArea\" was not injected: check your FXML file 'Scene.fxml'.";
     }
     
     public void setModel (Model model) {
