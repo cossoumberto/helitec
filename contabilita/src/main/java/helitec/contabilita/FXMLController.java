@@ -6,6 +6,7 @@ package helitec.contabilita;
 
 import java.math.BigDecimal;
 
+
 import java.math.RoundingMode;
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 
 public class FXMLController {
 	
@@ -54,6 +56,9 @@ public class FXMLController {
 
     @FXML // fx:id="IFtxtLavorazione"
     private TextField IFtxtLavorazione; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="IFtxtRicercaVoce"
+    private TextField IFtxtRicercaVoce; // Value injected by FXMLLoader
 
     @FXML // fx:id="IFboxVoci"
     private ComboBox<String> IFboxVoci; // Value injected by FXMLLoader
@@ -194,10 +199,7 @@ public class FXMLController {
     			l.setVoceCapitolato(this.IFboxVoci.getValue());
     		if(!ll.contains(l))
     			ll.add(l);
-    		else 
-    			for(Lavorazione lav : ll)
-    				if(lav.equals(l))
-    					l = lav;
+    		l = ll.get(ll.indexOf(l));
     	}
     	
     	//Creazione importo per fattura
@@ -248,6 +250,7 @@ public class FXMLController {
     	this.IFboxIVA.setDisable(false);
     	this.IFboxCantieri.setValue(null);
     	this.IFtxtLavorazione.clear();
+    	this.IFtxtRicercaVoce.clear();
     	this.IFboxVoci.setValue(null);
     	this.IFtxtImportoNoIva.clear();
     	this.IFtxtImportoTot.clear();
@@ -256,6 +259,17 @@ public class FXMLController {
     	this.IFtxtNoteFattura.clear();
     	this.IFtxtImportoTotFattura.clear();
     	this.IFbtnCancArea.setDisable(true);
+    }
+    
+    @FXML
+    void IFricercaVoci(KeyEvent event) {
+    	String ins = this.IFtxtRicercaVoce.getText().trim().toUpperCase();
+    	List<String> list = new ArrayList<>();
+    	for(String s : model.getVociCapitolato())
+    		if(s.contains(ins))
+    			list.add(s);
+    	this.IFboxVoci.getItems().clear();
+    	this.IFboxVoci.getItems().addAll(list);
     }
  
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -266,6 +280,7 @@ public class FXMLController {
         assert IFboxIVA != null : "fx:id=\"IFboxIVA\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFboxCantieri != null : "fx:id=\"IFboxCantieri\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFtxtLavorazione != null : "fx:id=\"IFtxtLavorazione\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IFtxtRicercaVoce != null : "fx:id=\"IFtxtRicercaVoce\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFboxVoci != null : "fx:id=\"IFboxVoci\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFtxtImportoNoIva != null : "fx:id=\"IFtxtImportoNoIva\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFtxtImportoTot != null : "fx:id=\"IFtxtImportoTot\" was not injected: check your FXML file 'Scene.fxml'.";
@@ -287,6 +302,9 @@ public class FXMLController {
     	this.IFboxCantieri.getItems().clear();
     	this.IFboxCantieri.getItems().add(null);
     	this.IFboxCantieri.getItems().addAll(model.getCantieri());
+    	this.IFboxVoci.getItems().clear();
+    	this.IFboxVoci.getItems().add(null);
+    	this.IFboxVoci.getItems().addAll(model.getVociCapitolato());
     	this.f = null;
     	this.ll = new ArrayList<>();
     }

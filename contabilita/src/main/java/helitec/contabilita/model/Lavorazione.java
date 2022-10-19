@@ -10,14 +10,17 @@ public class Lavorazione {
 	private String descrizione;
 	private String voceCapitolato;
 	private Cantiere cantiere;
+	private VoceCapitolatoCantiere voceCapitolatoCantiere;
 	private Double importo;
 	private List<Importo> importi;
-	
-	public Lavorazione(String descrizione, String voceCapitolato, Cantiere cantiere, Double importo) {
+
+	public Lavorazione(String descrizione, String voceCapitolato, Cantiere cantiere,
+			VoceCapitolatoCantiere voceCapitolatoCantiere, Double importo) {
 		super();
 		this.descrizione = descrizione;
 		this.voceCapitolato = voceCapitolato;
 		this.cantiere = cantiere;
+		this.voceCapitolatoCantiere = voceCapitolatoCantiere;
 		this.importo = importo;
 		this.importi = new ArrayList<>();
 	}
@@ -26,6 +29,7 @@ public class Lavorazione {
 		this.descrizione = null;
 		this.voceCapitolato = null;
 		this.cantiere = null;
+		this.voceCapitolatoCantiere = null;
 		this.importo = null;
 		this.importi = new ArrayList<>();
 	}
@@ -53,6 +57,14 @@ public class Lavorazione {
 	public void setCantiere(Cantiere cantiere) {
 		this.cantiere = cantiere;
 	}
+	
+	public VoceCapitolatoCantiere getVoceCapitolatoCantiere() {
+		return voceCapitolatoCantiere;
+	}
+
+	public void setVoceCapitolatoCantiere(VoceCapitolatoCantiere voceCapitolatoCantiere) {
+		this.voceCapitolatoCantiere = voceCapitolatoCantiere;
+	}
 
 	public Double getImporto() {
 		return importo;
@@ -62,13 +74,34 @@ public class Lavorazione {
 		this.importo = importo;
 	}
 	
+	public List<Importo> getImporti() {
+		return importi;
+	}
+
 	public void addImporto (Importo i) {
+		//aggiornamento importi lavorazione
 		this.importi.add(i);
 		if(this.importo==null) 
 			this.importo = 0.0;
 		this.importo += i.getImporto();
 		BigDecimal x = new BigDecimal(this.importo).setScale(2, RoundingMode.HALF_EVEN);
 		this.importo = x.doubleValue();
+		//aggiornamento importo cantiere
+		if(this.cantiere!=null) {
+			if(this.cantiere.getImportoTotale()==null)
+				this.cantiere.setImportoTotale(0.0);
+			Double importoc = this.cantiere.getImportoTotale() + i.getImporto();
+			BigDecimal x1 = new BigDecimal(importoc).setScale(2, RoundingMode.HALF_EVEN);
+			this.cantiere.setImportoTotale(x1.doubleValue());
+		}
+		//aggiornamento importo voce capitolato
+		if(this.voceCapitolatoCantiere!=null) {
+			if(this.voceCapitolatoCantiere.getImportoPagato()==null)
+				this.voceCapitolatoCantiere.setImportoPagato(0.0);
+			Double importov = this.voceCapitolatoCantiere.getImportoPagato() + i.getImporto();
+			BigDecimal x2 = new BigDecimal(importov).setScale(2, RoundingMode.HALF_EVEN);
+			this.voceCapitolatoCantiere.setImportoPagato(x2.doubleValue());
+		}
 	}
 
 	@Override
