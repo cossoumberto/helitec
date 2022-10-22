@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Fattura {
+public class Fattura implements Comparable<Fattura>{
 	
 	private String numero;
 	private LocalDate data;
@@ -183,9 +183,14 @@ public class Fattura {
 
 	@Override
 	public String toString() {
-		return "Fattura [numero=" + numero + ", data=" + data + ", fornitore=" + fornitore + ", importoNoIva="
-				+ importoNoIva + ", iva=" + iva + ", importoTot=" + importoTot + ", importoPagato=" + importoPagato
-				+ ", note=" + note + "]";
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		String s = fornitore + " - Fattura " + numero + " del " + data.format(formatter) 
+		+ " - Importo: " + importoTot + " - Pagato: ";
+		if(importoPagato!=null)
+			s += importoPagato;
+		else 
+			s += 0;
+		return s;
 	}
 
 	@Override
@@ -224,6 +229,13 @@ public class Fattura {
 		} else if (!numero.equals(other.numero))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(Fattura o) {
+		if(!this.data.equals(o.data))
+			return this.data.compareTo(o.data);
+		else return this.numero.compareTo(o.numero);
 	}
 	
 		

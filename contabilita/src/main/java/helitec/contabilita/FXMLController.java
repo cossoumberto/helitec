@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -18,6 +19,7 @@ import helitec.contabilita.model.Fattura;
 import helitec.contabilita.model.Importo;
 import helitec.contabilita.model.Lavorazione;
 import helitec.contabilita.model.Model;
+import helitec.contabilita.model.Pagamento;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -29,7 +31,12 @@ import javafx.scene.input.KeyEvent;
 
 public class FXMLController {
 	
-	private Model model;
+	
+	// TAB INSERISCI FATTURA
+	//
+	//
+	//
+	
 	private Fattura f;
 	private List<Lavorazione> ll;
 
@@ -99,6 +106,12 @@ public class FXMLController {
     @FXML
     void IFcancella(ActionEvent event) {
     	if(f!=null && f.getImporti().size()>0 && this.IFtxtArea.getText().equals(f.toStringConImporti())) {
+    		int n = 0;
+    		for(Importo i : f.getImporti())
+    			if(f.getImporti().get(f.getImporti().size()-1).getLavorazione().equals(i.getLavorazione()))
+    				n++;
+    		if(n<=1)
+    			ll.remove(ll.get(ll.indexOf(f.getImporti().get(f.getImporti().size()-1).getLavorazione())));
     		f.cancLastImporto();
     		this.IFtxtArea.setText(f.toStringConImporti());
     		this.IFtxtArea.appendText("");
@@ -109,7 +122,7 @@ public class FXMLController {
     
     @FXML
     void IFcancellaArea(ActionEvent event) {
-    	if(f==null) {
+    	if(f==null && ll.size()==0) {
 	    	this.IFtxtArea.clear();
 	    	this.IFtxtNoteFattura.clear();
 	    	this.IFtxtImportoTotFattura.clear();
@@ -128,6 +141,7 @@ public class FXMLController {
     		this.IFtxtArea.setText(f.toStringConImporti());
     		this.IFtxtArea.appendText("\n\nFattura caricata correttamente");
     		this.f = null;
+    		this.ll = new ArrayList<>();
     		this.IFtxtFornitore.setEditable(true);
     		this.IFtxtNum.setEditable(true);
     		this.IFdata.setEditable(true);
@@ -138,7 +152,7 @@ public class FXMLController {
     	else
     		return;
     }
-
+    
     @FXML
     void IFinserisci(ActionEvent event) {
     	//Gestione inserimento dati comuni della fattura
@@ -271,9 +285,111 @@ public class FXMLController {
     	this.IFboxVoci.getItems().clear();
     	this.IFboxVoci.getItems().addAll(list);
     }
- 
+    
+    
+    //TAB INSERISCI PAGAMENTO 
+    //
+    //
+    //
+    
+    private Pagamento p;
+    
+    @FXML // fx:id="IPtxtFornitore"
+    private TextField IPtxtFornitore; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IPdata"
+    private DatePicker IPdata; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IPtxtImporto"
+    private TextField IPtxtImporto; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IPboxFatture"
+    private ComboBox<Fattura> IPboxFatture; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IPtxtImportoRel"
+    private TextField IPtxtImportoRel; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IPtxtNumFattura"
+    private TextField IPtxtNumFattura; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IPbtnInserisci"
+    private Button IPbtnInserisci; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IPtxtArea"
+    private TextArea IPtxtArea; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IPbtnCanc"
+    private Button IPbtnCanc; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IPbtnReset"
+    private Button IPbtnReset; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IPbtnConferma"
+    private Button IPbtnConferma; // Value injected by FXMLLoader
+
+    @FXML
+    void IPcancella(ActionEvent event) {
+
+    }
+
+    @FXML
+    void IPconferma(ActionEvent event) {
+
+    }
+
+    @FXML
+    void IPinserisci(ActionEvent event) {
+    	if(this.p==null) {
+    		p = new Pagamento();
+    		if(this.IPtxtFornitore.getText().trim().length()>0)
+    			p.setFornitore(this.IPtxtFornitore.getText().trim().toUpperCase());
+    		p.setData(this.IPdata.getValue());
+    		if(p.getFornitore()==null || p.getData()==null) {
+    			p = null;
+    			this.IPtxtArea.setText("Inserimento dati non corretto");
+    			return;
+    		}
+        	Double importo = null;
+        	try {
+    			importo = Double.parseDouble(this.IPtxtImporto.getText());
+    			if(importo<0)
+    				throw new NumberFormatException();
+    		} catch (NumberFormatException e) {
+    			p = null;
+    			this.IPtxtArea.setText("Inserimento importo non valido");
+    			return;
+    			//e.printStackTrace();
+    		}
+    	}
+    }
+
+    @FXML
+    void IPreset(ActionEvent event) {
+
+    }
+
+    @FXML
+    void IPricercaFattureForn(KeyEvent event) {
+    	this.IPboxFatture.getItems().clear();
+    	if(this.IPtxtFornitore.getText().trim().length()>0 && !model.getFornitori().contains(this.IPtxtFornitore.getText().trim().toUpperCase()))
+    			this.IPtxtArea.setText("Fornitore inserito non esistente");
+    		
+    	else {
+    		this.IPtxtArea.clear();
+    		this.IPboxFatture.getItems().addAll(model.getFattureFornitore(this.IPtxtFornitore.getText().trim().toUpperCase()));
+    	}
+    }
+    
+    //INIZIALIZZAZIONE
+    //
+    //
+    //
+    
+    private Model model;
+    
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
+    	//TAB INSERISCI FATTURA
         assert IFtxtFornitore != null : "fx:id=\"IFtxtFornitore\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFtxtNum != null : "fx:id=\"IFtxtNum\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFdata != null : "fx:id=\"IFdata\" was not injected: check your FXML file 'Scene.fxml'.";
@@ -293,10 +409,23 @@ public class FXMLController {
         assert IFbtnReset != null : "fx:id=\"IFbtnReset\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFbtnConfema != null : "fx:id=\"IFbtnConfema\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFbtnCancArea != null : "fx:id=\"IFbtnCancArea\" was not injected: check your FXML file 'Scene.fxml'.";
+        //TAB INSERISCI PAGAMENTO
+        assert IPtxtFornitore != null : "fx:id=\"IPtxtFornitore\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPdata != null : "fx:id=\"IPdata\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPtxtImporto != null : "fx:id=\"IPtxtImporto\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPboxFatture != null : "fx:id=\"IPboxFatture\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPtxtImportoRel != null : "fx:id=\"IPtxtImportoRel\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPtxtNumFattura != null : "fx:id=\"IPtxtNumFattura\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPbtnInserisci != null : "fx:id=\"IPbtnInserisci\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPtxtArea != null : "fx:id=\"IPtxtArea\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPbtnCanc != null : "fx:id=\"IPbtnCanc\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPbtnReset != null : "fx:id=\"IPbtnReset\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPbtnConferma != null : "fx:id=\"IPbtnConferma\" was not injected: check your FXML file 'Scene.fxml'.";
     }
     
     public void setModel (Model model) {
     	this.model = model;
+    	//TAB INSERISCI FATTURA
     	this.IFboxIVA.getItems().clear();
     	this.IFboxIVA.getItems().addAll(0, 4, 10, 22);
     	this.IFboxCantieri.getItems().clear();
@@ -307,6 +436,8 @@ public class FXMLController {
     	this.IFboxVoci.getItems().addAll(model.getVociCapitolato());
     	this.f = null;
     	this.ll = new ArrayList<>();
+    	//TAB INSERISCI PAGAMENTO
+    	this.p = null;
     }
     
 }

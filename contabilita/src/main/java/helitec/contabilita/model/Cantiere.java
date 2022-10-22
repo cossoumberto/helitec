@@ -1,6 +1,6 @@
 package helitec.contabilita.model;
 
-public class Cantiere {
+public class Cantiere implements Comparable<Cantiere>{
 	
 	private Integer numero;
 	private String denominazione;
@@ -85,6 +85,11 @@ public class Cantiere {
 		} else if (!numero.equals(other.numero))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(Cantiere o) {
+		return this.numero.compareTo(o.getNumero());
 	}
 	
 }

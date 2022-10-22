@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
@@ -39,7 +40,7 @@
                         <ComboBox fx:id="IFboxIVA" maxWidth="170.0" prefWidth="170.0" promptText="IVA" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                         <ComboBox fx:id="IFboxCantieri" maxWidth="170.0" prefWidth="170.0" promptText="Cantiere" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                         <TextField fx:id="IFtxtLavorazione" maxWidth="170.0" prefWidth="170.0" promptText="Lavorazione" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                        <TextField fx:id="IFtxtRicercaVoce" onKeyPressed="#IFricercaVoci" onKeyTyped="#IFricercaVoci" prefWidth="170.0" promptText="Ricerca Voce Capitolato" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="IFtxtRicercaVoce" maxWidth="170.0" onKeyTyped="#IFricercaVoci" prefWidth="170.0" promptText="Ricerca Voce Capitolato" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                         <ComboBox fx:id="IFboxVoci" maxWidth="170.0" prefWidth="170.0" promptText="Voce Capitolato" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                         <TextField fx:id="IFtxtImportoNoIva" maxWidth="170.0" prefWidth="170.0" promptText="Importo NO IVA" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                         <TextField fx:id="IFtxtImportoTot" maxWidth="170.0" onAction="#IFsetImportoTot" prefWidth="170.0" promptText="Importo Tot Lavorazione" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
@@ -79,7 +80,7 @@
                         <Button fx:id="IFbtnCanc" mnemonicParsing="false" onAction="#IFcancella" prefWidth="170.0" text="Cancella Inserimento" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                         <Button fx:id="IFbtnReset" mnemonicParsing="false" onAction="#IFreset" prefWidth="170.0" text="Reset" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                         <Button fx:id="IFbtnConfema" mnemonicParsing="false" onAction="#IFconferma" prefWidth="170.0" text="Conferma" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                        <Button fx:id="IFbtnCancArea" disable="true" mnemonicParsing="false" onAction="#IFcancellaArea" prefWidth="170.0" text="Cancella solo Output" />
+                        <Button fx:id="IFbtnCancArea" disable="true" mnemonicParsing="false" onAction="#IFcancellaArea" prefWidth="170.0" text="Cancella solo Output" GridPane.halignment="CENTER" />
                      </children>
                      <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
@@ -89,53 +90,6 @@
             </VBox>
          </content>
     </Tab>
-      <Tab text="Inserisci Pagamento">
-         <content>
-            <VBox alignment="TOP_CENTER">
-               <children>
-                  <GridPane hgap="10.0" vgap="10.0">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <children>
-                        <TextField promptText="Fornitore" GridPane.rowIndex="1" />
-                        <DatePicker promptText="Data Pagamento" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <TextField promptText="Importo" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <TextField promptText="Fattura" GridPane.rowIndex="2" />
-                        <TextField promptText="Importo Relativo" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Button mnemonicParsing="false" prefWidth="150.0" text="Inserisci" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                     </children>
-                     <padding>
-                        <Insets left="20.0" right="20.0" top="20.0" />
-                     </padding>
-                  </GridPane>
-                  <TextArea editable="false">
-                     <VBox.margin>
-                        <Insets left="20.0" right="20.0" top="20.0" />
-                     </VBox.margin>
-                  </TextArea>
-                  <HBox alignment="TOP_CENTER" spacing="160.0">
-                     <children>
-                        <Button mnemonicParsing="false" text="Cancella" />
-                        <Button mnemonicParsing="false" text="Reset" />
-                        <Button mnemonicParsing="false" text="Conferma" />
-                     </children>
-                     <padding>
-                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                     </padding>
-                  </HBox>
-               </children>
-            </VBox>
-         </content>
-      </Tab>
       <Tab text="Fatture">
          <content>
             <GridPane>
@@ -151,36 +105,174 @@
             </GridPane>
          </content>
          <content>
-            <VBox alignment="TOP_CENTER">
+            <VBox alignment="TOP_RIGHT">
                <children>
-                  <HBox alignment="CENTER" spacing="20.0">
+                  <HBox alignment="CENTER" spacing="10.0">
                      <VBox.margin>
                         <Insets left="20.0" right="20.0" top="20.0" />
                      </VBox.margin>
                      <children>
-                        <ComboBox promptText="Ricerca Fattura per..." />
-                        <TextField promptText="Ricerca" />
+                        <ComboBox maxWidth="170.0" prefWidth="170.0" promptText="Ricerca Fattura per..." />
+                        <TextField prefWidth="170.0" promptText="Ricerca" />
+                        <ComboBox maxWidth="170.0" prefWidth="170.0" promptText="Elenco Fatture" />
                      </children>
                   </HBox>
-                  <ComboBox promptText="Elenco Fatture">
-                     <VBox.margin>
-                        <Insets left="20.0" right="20.0" top="20.0" />
-                     </VBox.margin>
-                  </ComboBox>
                   <TextArea>
                      <VBox.margin>
                         <Insets left="20.0" right="20.0" top="20.0" />
                      </VBox.margin>
                   </TextArea>
-                  <ComboBox promptText="Selezione Importo da modificare">
+                  <TextField maxWidth="170.0" prefWidth="170.0" promptText="Importo Fattura">
+                     <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <TextField prefHeight="40.0" promptText="Note Fattura">
+                     <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <GridPane hgap="10.0" vgap="10.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Button maxWidth="170.0" mnemonicParsing="false" prefWidth="170.0" text="Cancella Note" />
+                        <Button maxWidth="170.0" mnemonicParsing="false" prefWidth="170.0" text="Modifica Note" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                        <ComboBox maxWidth="170.0" prefWidth="170.0" promptText="Importi" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                        <ComboBox maxWidth="170.0" prefWidth="170.0" promptText="Cantiere" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                        <TextField maxWidth="170.0" prefWidth="170.0" promptText="Lavorazione" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                        <TextField maxWidth="170.0" onKeyPressed="#IFricercaVoci" onKeyTyped="#IFricercaVoci" prefWidth="170.0" promptText="Ricerca Voce Capitolato" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                        <ComboBox maxWidth="170.0" prefWidth="170.0" promptText="Voce Capitolato" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                        <Button maxWidth="170.0" mnemonicParsing="false" prefWidth="170.0" text="Cancella Importo" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField maxWidth="170.0" prefWidth="170.0" promptText="Importo NO IVA" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                        <TextField maxWidth="170.0" prefWidth="170.0" promptText="Importo Tot Lavorazione" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                        <Button maxWidth="170.0" mnemonicParsing="false" prefWidth="170.0" text="Inserisci" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                     </children>
+                     <padding>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </GridPane>
+                  <TextField promptText="Note Importo">
+                     <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <HBox spacing="10.0">
+                     <children>
+                        <Button maxWidth="170.0" mnemonicParsing="false" prefWidth="170.0" text="Cancella Inserimento" />
+                        <Button maxWidth="170.0" mnemonicParsing="false" prefWidth="170.0" text="Reset" />
+                        <Button maxWidth="170.0" mnemonicParsing="false" prefWidth="170.0" text="Conferma" />
+                     </children>
                      <VBox.margin>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </VBox.margin>
-                  </ComboBox>
+                  </HBox>
                </children>
             </VBox>
          </content></Tab>
-      <Tab text="Cantieri" />
-      <Tab text="Fornitori" />
+      <Tab text="Inserisci Pagamento">
+         <content>
+            <VBox alignment="TOP_CENTER">
+               <children>
+                  <GridPane hgap="10.0" vgap="10.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <TextField fx:id="IPtxtFornitore" maxWidth="170.0" onKeyTyped="#IPricercaFattureForn" prefWidth="170.0" promptText="Fornitore" />
+                        <DatePicker fx:id="IPdata" maxWidth="170.0" prefWidth="170.0" promptText="Data Pagamento" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                        <TextField fx:id="IPtxtImporto" maxWidth="170.0" prefWidth="170.0" promptText="Importo" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                        <Label text="Se Fattura non ancora inserita..." GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                        <TextField fx:id="IPtxtNumFattura" maxWidth="170.0" prefWidth="170.0" promptText="Numero Fattura" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <ComboBox fx:id="IPboxFatture" maxWidth="170.0" prefWidth="170.0" promptText="Fatture Inserite" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                        <TextField fx:id="IPtxtImportoRel" maxWidth="170.0" prefWidth="170.0" promptText="Importo Relativo Pagato" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                        <Button fx:id="IPbtnInserisci" maxWidth="170.0" mnemonicParsing="false" onAction="#IPinserisci" prefWidth="170.0" text="Inserisci" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                     </children>
+                     <padding>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </GridPane>
+                  <TextArea fx:id="IPtxtArea" editable="false" maxWidth="600.0">
+                     <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                     </VBox.margin>
+                  </TextArea>
+                  <HBox alignment="TOP_CENTER" spacing="10.0">
+                     <children>
+                        <Button fx:id="IPbtnCanc" maxWidth="170.0" mnemonicParsing="false" onAction="#IPcancella" prefWidth="170.0" text="Cancella Inserimento" />
+                        <Button fx:id="IPbtnReset" mnemonicParsing="false" onAction="#IPreset" prefWidth="170.0" text="Reset" />
+                        <Button fx:id="IPbtnConferma" maxWidth="170.0" mnemonicParsing="false" onAction="#IPconferma" prefWidth="170.0" text="Conferma" />
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </HBox>
+               </children>
+            </VBox>
+         </content>
+      </Tab>
+      <Tab text="Pagamenti" />
+      <Tab text="Cantieri">
+         <content>
+            <VBox alignment="TOP_RIGHT" spacing="20.0">
+               <children>
+                  <HBox>
+                     <children>
+                        <ComboBox maxWidth="170.0" prefWidth="170.0" promptText="Seleziona Cantiere" />
+                     </children>
+                  </HBox>
+                  <HBox spacing="10.0">
+                     <children>
+                        <ComboBox maxWidth="170.0" prefWidth="170.0" promptText="Seleziona Lavorazioni" />
+                        <Button maxWidth="170.0" mnemonicParsing="false" prefWidth="170.0" text="Inserici" />
+                        <Button maxWidth="170.0" mnemonicParsing="false" prefWidth="170.0" text="Rimuovi" />
+                     </children>
+                  </HBox>
+                  <TextArea />
+                  <TextField maxWidth="170.0" prefWidth="170.0" promptText="Importo Pagato" />
+                  <HBox spacing="10.0">
+                     <children>
+                        <ComboBox maxWidth="170.0" prefWidth="170.0" promptText="Seleziona Voci Capitolato" />
+                        <Button maxWidth="170.0" mnemonicParsing="false" prefWidth="170.0" text="Inserici" />
+                        <Button maxWidth="170.0" mnemonicParsing="false" prefWidth="170.0" text="Rimuovi" />
+                     </children>
+                  </HBox>
+                  <TextArea />
+                  <GridPane hgap="10.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <TextField promptText="Importo Preventivo" GridPane.columnIndex="1" />
+                        <TextField maxWidth="170.0" prefWidth="170.0" promptText="Importo Pagato" GridPane.columnIndex="2" />
+                     </children>
+                  </GridPane>
+               </children>
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+            </VBox>
+         </content></Tab>
   </tabs>
 </TabPane>

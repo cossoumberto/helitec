@@ -1,6 +1,6 @@
 package helitec.contabilita.model;
 
-public class Importo {
+public class Importo implements Comparable<Importo>{
 	
 	private Integer numero;
 	private Fattura fattura;
@@ -126,6 +126,11 @@ public class Importo {
 		} else if (!numero.equals(other.numero))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(Importo o) {
+		return this.numero.compareTo(o.numero);
 	}
 	
 }

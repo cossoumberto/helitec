@@ -1,6 +1,7 @@
 package helitec.contabilita.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import helitec.contabilita.dao.HelitecDAO;
@@ -26,10 +27,27 @@ public class Model {
 	}	
 	
 	public List<Cantiere> getCantieri() {
+		Collections.sort(this.cantieri);
 		return this.cantieri;
 	}
+	
 	public List<String> getVociCapitolato(){
+		Collections.sort(this.vociCapitolato);
 		return this.vociCapitolato;
+	}
+	
+	public List<String> getFornitori(){
+		Collections.sort(this.fornitori);
+		return this.fornitori;
+	}
+	
+	public List<Fattura> getFattureFornitore(String fornitore) {
+		List<Fattura> l = new ArrayList<>();
+		for(Fattura f : this.fatture)
+			if(f.getFornitore().equals(fornitore))
+				l.add(f);
+		Collections.sort(l);
+		return l;
 	}
 
 	public void elaboraFattura(Fattura f, List<Lavorazione> ll) {
