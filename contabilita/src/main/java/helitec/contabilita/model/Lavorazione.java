@@ -103,6 +103,11 @@ public class Lavorazione {
 			this.voceCapitolatoCantiere.setImportoPagato(x2.doubleValue());
 		}
 	}
+	
+	public void addImportoDB(Importo i) {
+		this.importi.add(i);
+	}
+
 
 	@Override
 	public String toString() {
@@ -140,5 +145,4 @@ public class Lavorazione {
 			return false;
 		return true;
 	}
-
 }

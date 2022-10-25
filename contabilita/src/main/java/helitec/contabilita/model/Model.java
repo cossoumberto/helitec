@@ -1,10 +1,13 @@
 package helitec.contabilita.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import helitec.contabilita.dao.HelitecDAO;
+import helitec.contabilita.model.PagamentoFattura.Intero;
 
 public class Model {
 	
@@ -15,6 +18,7 @@ public class Model {
 	private List<VoceCapitolatoCantiere> vociCapitolatoCantiere = null;
 	private List<String> vociCapitolato = null;
 	private List<String> fornitori = null;
+	private List<Pagamento> pagamenti = null;
 	
 	public Model() {
 		this.dao = new HelitecDAO();
@@ -22,9 +26,14 @@ public class Model {
 		this.fatture = dao.listFatture();
 		this.vociCapitolatoCantiere = dao.listVociCapitolatoCantiere(cantieri);
 		this.lavorazioni = dao.listLavorazioni(cantieri, vociCapitolatoCantiere);
+		dao.setImporti(fatture, lavorazioni);
 		this.vociCapitolato = dao.listVociCapitolato();
 		this.fornitori = dao.listFornitori();
-	}	
+		this.pagamenti = dao.listPagamenti();
+		dao.setPagamentiFattura(pagamenti, fatture);
+		for(Fattura f : fatture)
+			System.out.println(f.toString());
+	}
 	
 	public List<Cantiere> getCantieri() {
 		Collections.sort(this.cantieri);
@@ -41,15 +50,18 @@ public class Model {
 		return this.fornitori;
 	}
 	
-	public List<Fattura> getFattureFornitore(String fornitore) {
+	public List<Fattura> getFattureFornitoreDaPag(String fornitore) {
 		List<Fattura> l = new ArrayList<>();
 		for(Fattura f : this.fatture)
 			if(f.getFornitore().equals(fornitore))
-				l.add(f);
+				if(f.getImportoPagato()==null || f.getImportoPagato()<f.getImportoTot())
+					l.add(f);
 		Collections.sort(l);
 		return l;
 	}
-
+	
+	
+	//AGGIORNARE CON UPDATE PAGAMENTI
 	public void elaboraFattura(Fattura f, List<Lavorazione> ll) {
 		List<Lavorazione> nuoveLav = new ArrayList<>();
 		List<Lavorazione> lavMod = new ArrayList<>();
@@ -111,6 +123,41 @@ public class Model {
 		if(fatture.contains(f))
 			return true;
 		else return false;
+	}
+
+	//COMPLETARE+FUNZIONI DAO PER AGG. DB
+	public void elaboraPagamento(Pagamento p) {
+		Integer importiSconosciuti = 0;
+		for(PagamentoFattura pf : p.getFatture()) {
+			//caso 1: importo relativo non inserito, ma fattura interamente pagata
+			if(this.fatture.contains(pf.getFattura()) && pf.getImportoRelativo()==null && pf.getIntero().equals(Intero.INTERO))
+				pf.setImportoRelativo(this.fatture.get(this.fatture.indexOf(pf.getFattura())).getImportoTot());
+			//caso 2: inserito pagamento per fattura di importo sconosciuto
+			if(pf.getImportoRelativo()==null)
+				importiSconosciuti++;
+		}
+		for(PagamentoFattura pf : p.getFatture()) {
+			//caso 2: inserito pagamento per fattura di importo sconosciuto
+			if(importiSconosciuti==1 && pf.getImportoRelativo()==null) {
+				Double d = p.getImporto()-p.getSommaImportiRelativi();
+				BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);
+				d = x.doubleValue();
+				pf.setImportoRelativo(d);
+			}
+			//aggiornamento importo relativo fattura
+			if(this.fatture.contains(pf.getFattura()) && pf.getImportoRelativo()!=null) {
+				if(this.fatture.get(this.fatture.indexOf(pf.getFattura())).getImportoPagato()==null)
+					this.fatture.get(this.fatture.indexOf(pf.getFattura())).setImportoPagato(0.0);
+				Double d = this.fatture.get(this.fatture.indexOf(pf.getFattura())).getImportoPagato() + pf.getImportoRelativo();
+				BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);
+				d = x.doubleValue();
+				this.fatture.get(this.fatture.indexOf(pf.getFattura())).setImportoPagato(d);	
+			}
+		}
+		this.pagamenti.add(p);
+		dao.aggiungiPagamento(p);
+		dao.aggiorniPagamentiFattura(p);
+		//aggiornamento importa pagato fattura su db da aggiornare
 	}
 	
 }

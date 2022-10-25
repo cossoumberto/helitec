@@ -14,6 +14,9 @@ import helitec.contabilita.model.Cantiere;
 import helitec.contabilita.model.Fattura;
 import helitec.contabilita.model.Importo;
 import helitec.contabilita.model.Lavorazione;
+import helitec.contabilita.model.Pagamento;
+import helitec.contabilita.model.PagamentoFattura;
+import helitec.contabilita.model.PagamentoFattura.Intero;
 import helitec.contabilita.model.VoceCapitolatoCantiere;
 
 public class HelitecDAO {
@@ -140,6 +143,93 @@ public class HelitecDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+	
+	public List<Pagamento> listPagamenti() {
+		String sql = "SELECT * FROM pagamento";
+		List<Pagamento> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+			while (res.next())
+				result.add(new Pagamento(res.getDate("data").toLocalDate(), res.getString("fornitore"), res.getDouble("importo")));
+			conn.close();
+			return result;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public void setImporti(List<Fattura> fatture, List<Lavorazione> lavorazioni) {
+		String sql = "SELECT * FROM importo_lavorazione";
+		Connection conn = DBConnect.getConnection();
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				Fattura fattura = new Fattura();
+				fattura.setNumero(res.getString("numero_fattura"));
+				fattura.setData(res.getDate("data_fattura").toLocalDate());
+				fattura.setFornitore(res.getString("fornitore"));
+				if(fatture.contains(fattura))
+					fattura = fatture.get(fatture.indexOf(fattura));
+				else fattura = null;
+				Lavorazione lavorazione = new Lavorazione();
+				lavorazione.setDescrizione(res.getString("descrizione"));
+				for(Lavorazione l : lavorazioni)
+					if(l.getCantiere().getNumero().equals(res.getInt("cantiere")))
+							lavorazione.setCantiere(l.getCantiere());
+				if(lavorazioni.contains(lavorazione))
+					lavorazione = lavorazioni.get(lavorazioni.indexOf(lavorazione));
+				else lavorazione = null;
+				Importo i = new Importo(res.getInt("numero"), fattura, lavorazione, res.getDouble("importo"), 
+						res.getDouble("importoIva"), res.getString("note"));
+				i.getFattura().addImportoDB(i);
+				i.getLavorazione().addImportoDB(i);
+			}
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void setPagamentiFattura(List<Pagamento> pagamenti, List<Fattura> fatture) {
+		String sql = "SELECT * FROM pagamento_fattura";
+		Connection conn = DBConnect.getConnection();
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				Fattura fattura = new Fattura();
+				fattura.setNumero(res.getString("numero_fattura"));
+				fattura.setData(res.getDate("data_fattura").toLocalDate());
+				fattura.setFornitore(res.getString("fornitore"));
+				if(fatture.contains(fattura))
+					fattura = fatture.get(fatture.indexOf(fattura));
+				else fattura = null;
+				Pagamento pagamento = new Pagamento();
+				pagamento.setData(res.getDate("data_pagamento").toLocalDate());
+				pagamento.setFornitore("fornitore");
+				if(pagamenti.contains(pagamento))
+					pagamento = pagamenti.get(pagamenti.indexOf(pagamento));
+				else pagamento = null;
+				Intero intero = null;
+				if(res.getInt("intero")==1)
+					intero = Intero.INTERO;
+				else if(res.getInt("acconto")==1)
+					intero = Intero.ACCONTO;
+				else if(res.getInt("saldo")==1)
+					intero = Intero.SALDO;
+				PagamentoFattura pg = new PagamentoFattura(fattura, pagamento, res.getDouble("impoto_relativo"), 
+						intero, res.getString("note"));
+				pg.getPagamento().aggiungiPagFattura(pg);
+			}
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -327,6 +417,64 @@ public class HelitecDAO {
 		System.out.println("Errore connessione al database");
 		throw new RuntimeException("Error Connection Database");
 		}
+	}
+
+	public void aggiungiPagamento(Pagamento p) {
+		String sql = "INSERT INTO pagamento VALUES (?,?,?)";
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setDate(1, Date.valueOf(p.getData()));
+			st.setString(2, p.getFornitore());
+			st.setDouble(3, p.getImporto());
+			st.executeQuery();
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+	}
+
+	public void aggiorniPagamentiFattura(Pagamento p) {
+		String sql = "INSERT INTO pagamento_fattura VALUES (?,?,?,?,?,?,?,?,?)";
+		for(PagamentoFattura pf : p.getFatture()) {
+			try {
+				Connection conn = DBConnect.getConnection();
+				PreparedStatement st = conn.prepareStatement(sql);
+				st.setString(1, pf.getFattura().getNumero());
+				if(pf.getFattura().getData()!=null)
+					st.setDate(2, Date.valueOf(pf.getFattura().getData()));
+				else
+					st.setNull(2, Types.DATE);
+				st.setString(3, p.getFornitore());
+				st.setDate(4, Date.valueOf(p.getData()));
+				if(pf.getImportoRelativo()!=null)
+					st.setDouble(5, pf.getImportoRelativo());
+				else 
+					st.setNull(5, Types.DOUBLE);
+				st.setInt(6, 0);
+				st.setInt(7, 0);
+				st.setInt(8, 0);
+				if(pf.getIntero().equals(Intero.INTERO))
+					st.setInt(6, 1);
+				else if(pf.getIntero().equals(Intero.ACCONTO))
+					st.setInt(7, 1);
+				else if(pf.getIntero().equals(Intero.SALDO))
+					st.setInt(8, 1);
+				if(pf.getNote()!=null)
+					st.setString(9, pf.getNote());
+				else 
+					st.setNull(9, Types.VARCHAR);
+				st.executeQuery() ;
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				System.out.println("Errore connessione al database");
+				throw new RuntimeException("Error Connection Database");
+			}
+		}
+		
 	}
 	
 }

@@ -1,24 +1,26 @@
 package helitec.contabilita.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import helitec.contabilita.model.PagamentoFattura.Intero;
 
 public class Pagamento {
 	
 	private LocalDate data;
 	private String fornitore;
 	private Double importo;
-	private String note;
 	private List<PagamentoFattura> fatture;
 	
-	public Pagamento(LocalDate data, String fornitore, Double importo, String note) {
+	public Pagamento(LocalDate data, String fornitore, Double importo) {
 		super();
 		this.data = data;
 		this.fornitore = fornitore;
 		this.importo = importo;
-		this.note = note;
 		this.fatture = new ArrayList<>();
 	}
 
@@ -26,7 +28,6 @@ public class Pagamento {
 		this.data = null;
 		this.fornitore = null;
 		this.importo = null;
-		this.note = null;
 		this.fatture = new ArrayList<>();
 	}
 
@@ -53,13 +54,28 @@ public class Pagamento {
 	public void setImporto(Double importo) {
 		this.importo = importo;
 	}
-
-	public String getNote() {
-		return note;
+	
+	public List<PagamentoFattura> getFatture() {
+		return fatture;
 	}
-
-	public void setNote(String note) {
-		this.note = note;
+	
+	public Double getSommaImportiRelativi(){
+		Double d = 0.0;
+		for(PagamentoFattura pf : this.fatture) 
+			if(pf.getImportoRelativo()!=null) {
+				d += pf.getImportoRelativo();
+				BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);
+				d= x.doubleValue();
+			}
+		return d;
+	}
+	
+	public void aggiungiPagFattura(PagamentoFattura pf) {
+		this.fatture.add(pf);
+	}
+	
+	public void cancLastFattura() {
+		this.fatture.remove(this.fatture.size()-1);
 	}
 
 	@Override
@@ -72,9 +88,17 @@ public class Pagamento {
 		String s = this.toString() + "\n";
 		if(this.fatture.size()>0) {
 			for(PagamentoFattura pf : this.fatture) {
-				s += "\n  " + this.fatture.indexOf(pf) + ") [" + pf.getFattura().toString() + " ] / " + this.importo;
-				if(this.note!=null)
-					s+= " / " + this.note;
+				s += "\n  " + (this.fatture.indexOf(pf)+1) + ") [" + pf.getFattura().toString() + " ]";
+				if(pf.getImportoRelativo()!=null)
+				s += " / " + pf.getImportoRelativo();
+				if(pf.getIntero()==Intero.ACCONTO)
+					s += " / ACCONTO";
+				else if(pf.getIntero()==Intero.SALDO)
+					s += " / SALDO";
+				else if(pf.getIntero()==Intero.INTERO);
+					s += " / INTERAMENTE PAGATA";
+				if(pf.getNote()!=null)
+					s+= " / " + pf.getNote();
 			}
 		}
 		return s;
@@ -110,6 +134,5 @@ public class Pagamento {
 			return false;
 		return true;
 	}
-
 	
 }

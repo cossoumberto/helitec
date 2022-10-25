@@ -6,11 +6,9 @@ package helitec.contabilita;
 
 import java.math.BigDecimal;
 
-
 import java.math.RoundingMode;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -20,6 +18,8 @@ import helitec.contabilita.model.Importo;
 import helitec.contabilita.model.Lavorazione;
 import helitec.contabilita.model.Model;
 import helitec.contabilita.model.Pagamento;
+import helitec.contabilita.model.PagamentoFattura;
+import helitec.contabilita.model.PagamentoFattura.Intero;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -144,7 +144,7 @@ public class FXMLController {
     		this.ll = new ArrayList<>();
     		this.IFtxtFornitore.setEditable(true);
     		this.IFtxtNum.setEditable(true);
-    		this.IFdata.setEditable(true);
+    		this.IFdata.setDisable(false);
     		this.IFboxIVA.setDisable(false);
     		this.IFbtnCancArea.setDisable(false);
     	} else if(f!=null && f.getImporti().size()==0)
@@ -231,7 +231,7 @@ public class FXMLController {
     	this.IFtxtImportoTotFattura.setText(this.f.getImportoTot().toString());
     	this.IFtxtFornitore.setEditable(false);
     	this.IFtxtNum.setEditable(false);
-    	this.IFdata.setEditable(false);
+    	this.IFdata.setDisable(true);
     	this.IFboxIVA.setDisable(true);
     }
    
@@ -312,8 +312,14 @@ public class FXMLController {
     @FXML // fx:id="IPtxtNumFattura"
     private TextField IPtxtNumFattura; // Value injected by FXMLLoader
 
+    @FXML // fx:id="IPboxIntero"
+    private ComboBox<String> IPboxIntero; // Value injected by FXMLLoader
+
     @FXML // fx:id="IPbtnInserisci"
     private Button IPbtnInserisci; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="IPtxtNotePagFatt"
+    private TextField IPtxtNotePagFatt; // Value injected by FXMLLoade
 
     @FXML // fx:id="IPtxtArea"
     private TextArea IPtxtArea; // Value injected by FXMLLoader
@@ -329,16 +335,28 @@ public class FXMLController {
 
     @FXML
     void IPcancella(ActionEvent event) {
-
+    	if(p!=null && p.getFatture().size()>0 && this.IPtxtArea.getText().equals(p.toStringConFatture())){
+    		p.cancLastFattura();
+    		this.IPtxtArea.setText(p.toStringConFatture());
+    	} else if(p!=null)
+    		this.IPtxtArea.setText(p.toStringConFatture());
     }
 
     @FXML
     void IPconferma(ActionEvent event) {
-
+    	if(this.p!=null && p.getFatture().size()>0 && this.IPtxtArea.getText().equals(p.toStringConFatture())) {
+    		model.elaboraPagamento(p);
+    		this.IPtxtArea.appendText("\n\nPagamento caricato correttamente");
+    		p = null;
+    		this.IPtxtFornitore.setEditable(true);
+    		this.IPdata.setDisable(false);
+    		this.IPtxtImporto.setEditable(true);
+    	}
     }
 
     @FXML
     void IPinserisci(ActionEvent event) {
+    	//Gestione inserimento dati comuni del pagamento
     	if(this.p==null) {
     		p = new Pagamento();
     		if(this.IPtxtFornitore.getText().trim().length()>0)
@@ -354,19 +372,81 @@ public class FXMLController {
     			importo = Double.parseDouble(this.IPtxtImporto.getText());
     			if(importo<0)
     				throw new NumberFormatException();
-    		} catch (NumberFormatException e) {
+       		} catch (NumberFormatException e) {
     			p = null;
     			this.IPtxtArea.setText("Inserimento importo non valido");
     			return;
     			//e.printStackTrace();
     		}
+        	p.setImporto(importo);
     	}
+    	
+    	//Gestione inserimento dati importo relativo
+    	this.IPtxtArea.setText(p.toStringConFatture());
+    	if(this.IPboxFatture.getValue()==null && this.IPtxtNumFattura.getText().length()==0){
+			this.IPtxtArea.appendText("\n\nInserire fatture");
+			return;
+    	}
+    	Fattura f = null;
+    	if(this.IPboxFatture.getValue()==null) {
+    		f = new Fattura();
+    		f.setFornitore(p.getFornitore());
+    		f.setNumero(this.IPtxtNumFattura.getText());
+    	} else 
+    		f = this.IPboxFatture.getValue();
+    	for(PagamentoFattura pf : p.getFatture())
+	    	if(pf.getFattura().equals(f)) {
+	    		this.IPtxtArea.appendText("\n\nFattura già inserita");
+	    		return;
+	    	}
+    	Double importoRel = null;
+    	if(this.IPtxtImportoRel.getText().length()>0) {
+	    	try {
+				importoRel = Double.parseDouble(this.IPtxtImportoRel.getText());
+				if(importoRel<0 || importoRel + p.getSommaImportiRelativi() > p.getImporto() || importoRel > f.getImportoTot())
+					throw new NumberFormatException();
+	   		} catch (NumberFormatException e) {
+				this.IPtxtArea.appendText("\n\nInserimento importo relativo non valido");
+				return;
+				//e.printStackTrace();
+			}
+    	}
+    	Intero intero = Intero.INTERO;
+    	if(this.IPboxIntero.getValue()==null)
+    		intero = null;
+    	if(this.IPboxIntero.getValue()=="Acconto")
+    		intero = Intero.ACCONTO;
+    	if(this.IPboxIntero.getValue()=="Saldo")
+    		intero = Intero.SALDO;
+    	String note = null;
+    	if(this.IPtxtNotePagFatt.getText().length()>0)
+    		note = this.IPtxtNotePagFatt.getText();
+    	
+    	//Creazione e visualizzazione risultati + disattivazione input dati comuni
+    	PagamentoFattura pf = new PagamentoFattura(f, p, importoRel, intero, note);
+    	p.aggiungiPagFattura(pf);
+    	this.IPtxtArea.setText(p.toStringConFatture());
+    	this.IPtxtFornitore.setEditable(false);
+    	this.IPdata.setDisable(true);;
+    	this.IPtxtImporto.setEditable(false);
     }
 
     @FXML
     void IPreset(ActionEvent event) {
-
-    }
+    	this.p = null;
+    	this.IPtxtFornitore.clear();
+    	this.IPtxtFornitore.setEditable(true);
+    	this.IPdata.setValue(null);
+    	this.IPdata.setDisable(true);
+    	this.IPtxtImporto.setEditable(true);
+    	this.IPtxtImporto.clear();
+    	this.IPtxtNumFattura.clear();
+    	this.IPboxFatture.setValue(null);
+    	this.IPboxFatture.getItems().clear();
+    	this.IPtxtImportoRel.clear();
+    	this.IPtxtNotePagFatt.clear();
+    	this.IPtxtArea.clear();
+   	}
 
     @FXML
     void IPricercaFattureForn(KeyEvent event) {
@@ -376,8 +456,15 @@ public class FXMLController {
     		
     	else {
     		this.IPtxtArea.clear();
-    		this.IPboxFatture.getItems().addAll(model.getFattureFornitore(this.IPtxtFornitore.getText().trim().toUpperCase()));
+    		this.IPboxFatture.getItems().add(null);
+    		this.IPboxFatture.getItems().addAll(model.getFattureFornitoreDaPag(this.IPtxtFornitore.getText().trim().toUpperCase()));
     	}
+    }
+    
+    @FXML
+    void IPsetImportoRel(ActionEvent event) {
+    	if(this.IPboxFatture.getValue()!=null)
+    		this.IPtxtImportoRel.setText(this.IPboxFatture.getValue().getImportoTot().toString());
     }
     
     //INIZIALIZZAZIONE
@@ -416,7 +503,9 @@ public class FXMLController {
         assert IPboxFatture != null : "fx:id=\"IPboxFatture\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IPtxtImportoRel != null : "fx:id=\"IPtxtImportoRel\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IPtxtNumFattura != null : "fx:id=\"IPtxtNumFattura\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPboxIntero != null : "fx:id=\"IPboxIntero\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IPbtnInserisci != null : "fx:id=\"IPbtnInserisci\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IPtxtNotePagFatt != null : "fx:id=\"IPtxtNotePagFatt\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IPtxtArea != null : "fx:id=\"IPtxtArea\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IPbtnCanc != null : "fx:id=\"IPbtnCanc\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IPbtnReset != null : "fx:id=\"IPbtnReset\" was not injected: check your FXML file 'Scene.fxml'.";
@@ -437,6 +526,9 @@ public class FXMLController {
     	this.f = null;
     	this.ll = new ArrayList<>();
     	//TAB INSERISCI PAGAMENTO
+    	this.IPboxIntero.getItems().add(null);
+    	this.IPboxIntero.getItems().addAll("Interamente pagata", "Acconto", "Saldo");
+    	this.IPboxIntero.setValue("Interamente pagata");
     	this.p = null;
     }
     

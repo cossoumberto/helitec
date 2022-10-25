@@ -1,17 +1,20 @@
 package helitec.contabilita.model;
 
 public class PagamentoFattura {
+	public enum Intero {INTERO, SALDO, ACCONTO};
 	
 	private Fattura fattura;
 	private Pagamento pagamento;
 	private Double importoRelativo;
+	private Intero intero;
 	private String note;
 	
-	public PagamentoFattura(Fattura fattura, Pagamento pagamento, Double importoRelativo, String note) {
+	public PagamentoFattura(Fattura fattura, Pagamento pagamento, Double importoRelativo, Intero intero, String note) {
 		super();
 		this.fattura = fattura;
 		this.pagamento = pagamento;
 		this.importoRelativo = importoRelativo;
+		this.intero = intero;
 		this.note = note;
 	}
 
@@ -37,6 +40,14 @@ public class PagamentoFattura {
 
 	public void setImportoRelativo(Double importoRelativo) {
 		this.importoRelativo = importoRelativo;
+	}
+
+	public Intero getIntero() {
+		return intero;
+	}
+
+	public void setIntero(Intero intero) {
+		this.intero = intero;
 	}
 
 	public String getNote() {

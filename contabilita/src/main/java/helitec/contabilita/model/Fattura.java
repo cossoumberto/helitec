@@ -159,6 +159,10 @@ public class Fattura implements Comparable<Fattura>{
 		this.importoTot= y.doubleValue();
 	}
 	
+	public void addImportoDB(Importo i) {
+		this.importi.add(i);
+	}
+	
 	public void cancLastImporto () {
 		this.importoNoIva -= importi.get(importi.size()-1).getImporto();
 		BigDecimal x = new BigDecimal(this.importoNoIva).setScale(2, RoundingMode.HALF_EVEN);
@@ -183,13 +187,17 @@ public class Fattura implements Comparable<Fattura>{
 
 	@Override
 	public String toString() {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-		String s = fornitore + " - Fattura " + numero + " del " + data.format(formatter) 
-		+ " - Importo: " + importoTot + " - Pagato: ";
-		if(importoPagato!=null)
-			s += importoPagato;
-		else 
-			s += 0;
+		String s = null;
+		if(this.data!=null) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			s = fornitore + " - Fattura " + numero + " del " + data.format(formatter) 
+			+ " - Importo: " + importoTot + " - Pagato: ";
+			if(importoPagato!=null)
+				s += importoPagato;
+			else 
+				s += 0;
+		} else
+			s = fornitore + " - Fattura " + numero;
 		return s;
 	}
 
