@@ -196,7 +196,7 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                      </rowConstraints>
                      <children>
-                        <TextField fx:id="IPtxtFornitore" maxWidth="170.0" onKeyTyped="#IPricercaFattureForn" prefWidth="170.0" promptText="Fornitore" />
+                        <TextField fx:id="IPtxtFornitore" maxWidth="170.0" onKeyTyped="#IPricercaFattureForn" prefWidth="170.0" promptText="Fornitore" GridPane.halignment="CENTER" />
                         <DatePicker fx:id="IPdata" maxWidth="170.0" prefWidth="170.0" promptText="Data Pagamento" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
                         <TextField fx:id="IPtxtImporto" maxWidth="170.0" prefWidth="170.0" promptText="Importo" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
                         <Label text="Se Fattura non ancora inserita..." GridPane.halignment="CENTER" GridPane.rowIndex="1" />
