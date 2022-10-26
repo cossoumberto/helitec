@@ -148,7 +148,7 @@ public class Fattura implements Comparable<Fattura>{
 					if(this.importoPagato==null)														
 						this.importoPagato = 0.0;
 					Double d = this.importoPagato + pf.getImportoRelativo();
-					BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);;
+					BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);
 					this.importoPagato = x.doubleValue();
 					return 1;
 				} else return 0;
@@ -157,7 +157,7 @@ public class Fattura implements Comparable<Fattura>{
 					if(this.importoPagato==null)														
 						this.importoPagato = 0.0;
 					Double d = this.importoPagato + pf.getImportoRelativo();
-					BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);;
+					BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);
 					this.importoPagato = x.doubleValue();
 					return 1;
 				} else return 0;

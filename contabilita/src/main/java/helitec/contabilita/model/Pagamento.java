@@ -55,6 +55,10 @@ public class Pagamento {
 		this.importo = importo;
 	}
 	
+	public void setFatture(List<PagamentoFattura> fatture) {
+		this.fatture = fatture;
+	}
+
 	public List<PagamentoFattura> getFatture() {
 		return fatture;
 	}
@@ -88,14 +92,14 @@ public class Pagamento {
 		String s = this.toString() + "\n";
 		if(this.fatture.size()>0) {
 			for(PagamentoFattura pf : this.fatture) {
-				s += "\n  " + (this.fatture.indexOf(pf)+1) + ") [" + pf.getFattura().toString() + " ]";
+				s += "\n  " + (this.fatture.indexOf(pf)+1) + ") [" + pf.getFattura().toString() + "]";
 				if(pf.getImportoRelativo()!=null)
-				s += " / " + pf.getImportoRelativo();
+					s += " / " + pf.getImportoRelativo();
 				if(pf.getIntero()==Intero.ACCONTO)
 					s += " / ACCONTO";
 				else if(pf.getIntero()==Intero.SALDO)
 					s += " / SALDO";
-				else if(pf.getIntero()==Intero.INTERO);
+				else if(pf.getIntero()==Intero.INTERO)
 					s += " / INTERAMENTE PAGATA";
 				if(pf.getNote()!=null)
 					s+= " / " + pf.getNote();

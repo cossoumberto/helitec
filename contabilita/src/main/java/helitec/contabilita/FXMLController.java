@@ -31,7 +31,6 @@ import javafx.scene.input.KeyEvent;
 
 public class FXMLController {
 	
-	
 	// TAB INSERISCI FATTURA
 	//
 	//
@@ -140,16 +139,16 @@ public class FXMLController {
     		Integer i = model.elaboraFattura(fnew, ll);
     		this.IFtxtArea.setText(f.toStringConImporti());
     		this.IFtxtArea.appendText("\n\nFattura caricata correttamente");
-    		if(i==0)
-    			this.IFtxtArea.appendText("\nErrore: ingruenza importo fattura - dati pagamento esistente");
+    		if(i==null)
+    			this.IFtxtArea.appendText("\nPagamento da caricare");
+    		else if(i==0)
+    			this.IFtxtArea.appendText("\nErrore: incongruenza importo fattura - dati pagamento esistente");
     		else if(i==1)
     			this.IFtxtArea.appendText(" e attribuita a pagamento esistente");
     		else if(i==2)
     			this.IFtxtArea.appendText("\nImpossibile attrubuire pagamento alla fattura senza importo pagamento relativo");
-    		else if(i==-1)
-    			this.IFtxtArea.appendText("\nErrore: ingruenza date fattura-pagamento");
-    		else if(i==null)
-    			this.IFtxtArea.appendText("\nFattura da pagare");
+    		/*else if(i==-1)
+    			this.IFtxtArea.appendText("\nErrore: incongruenza date fattura-pagamento");*/ //NECESSARIO?
     		this.f = null;
     		this.ll = new ArrayList<>();
     		this.IFtxtFornitore.setEditable(true);
@@ -356,19 +355,12 @@ public class FXMLController {
 
     @FXML
     void IPconferma(ActionEvent event) {
-    	Integer i = null;
     	if(this.p!=null && p.getFatture().size()>0 && this.IPtxtArea.getText().equals(p.toStringConFatture())) {
-    		i = model.elaboraPagamento(p);
-    		if(i==0)
-    			this.IPtxtArea.appendText
-    				("\n\nErrore: incongruenza tra importo fattura selezionata, importo pagamento e totalità pagamento");
-    		else this.IPtxtArea.appendText("\n\nPagamento caricato correttamente");
-    		if(i==1)
-    			this.IPtxtArea.appendText(" e attribuito correttamente a fattura esistente");
-    		else if(i==-1)
-    			this.IPtxtArea.appendText("\nImpossibile attrubuire pagamento a fattura esistente senza importo relativo");
-    		else if(i==null)
-    			this.IPtxtArea.appendText("\nFattura pagata sconosciuta");
+    		List<String> stamp = model.elaboraPagamento(p);
+    		this.IPtxtArea.appendText("\n");
+    		for(String s : stamp) {
+    			this.IPtxtArea.appendText("\n" + (stamp.indexOf(s)+1) + ") " + s);
+    		}
     		p = null;
     		this.IPtxtFornitore.setEditable(true);
     		this.IPdata.setDisable(false);
@@ -377,7 +369,7 @@ public class FXMLController {
     }
 
     @FXML
-    void IPinserisci(ActionEvent event) { //gestire inserimento di pagamenti gia effettuati e di fatture gia pagate + vincoli date
+    void IPinserisci(ActionEvent event) { //gestire vincoli date
     	//Gestione inserimento dati comuni del pagamento
     	if(this.p==null) {
     		p = new Pagamento();
@@ -387,6 +379,11 @@ public class FXMLController {
     		if(p.getFornitore()==null || p.getData()==null) {
     			p = null;
     			this.IPtxtArea.setText("Inserimento dati non corretto");
+    			return;
+    		}
+    		if(model.getPagamenti().contains(p)) {
+    			p = null;
+    			this.IPtxtArea.setText("Pagamento già inserito");
     			return;
     		}
         	Double importo = null;
@@ -413,9 +410,18 @@ public class FXMLController {
     	if(this.IPboxFatture.getValue()==null) {
     		f = new Fattura();
     		f.setFornitore(p.getFornitore());
-    		f.setNumero(this.IPtxtNumFattura.getText());
+    		f.setNumero(this.IPtxtNumFattura.getText().trim());
+    		for(Fattura f2 : this.IPboxFatture.getItems())
+    			if(f2!=null && f2.getNumero().equals(f.getNumero())){
+    	    		this.IPtxtArea.appendText("\n\nSelezionare fattura n." + f.getNumero() + " da elenco fattura inserite");
+    	    		return;
+    	    	}
     	} else 
     		f = this.IPboxFatture.getValue();
+    	if(f.getData()!=null && f.getData().isAfter(p.getData())) {
+    		this.IPtxtArea.appendText("\n\nImpossibile inserire pagamento con data successiva a emissione fattura");
+    		return;
+    	}
     	for(PagamentoFattura pf : p.getFatture())
 	    	if(pf.getFattura().equals(f)) {
 	    		this.IPtxtArea.appendText("\n\nFattura già inserita");
@@ -436,9 +442,9 @@ public class FXMLController {
     	Intero intero = Intero.INTERO;
     	if(this.IPboxIntero.getValue()==null)
     		intero = null;
-    	if(this.IPboxIntero.getValue()=="Acconto")
+    	else if(this.IPboxIntero.getValue().equals("Acconto"))
     		intero = Intero.ACCONTO;
-    	if(this.IPboxIntero.getValue()=="Saldo")
+    	else if(this.IPboxIntero.getValue().equals("Saldo"))
     		intero = Intero.SALDO;
     	String note = null;
     	if(this.IPtxtNotePagFatt.getText().length()>0)

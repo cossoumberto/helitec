@@ -48,6 +48,10 @@ public class Model {
 		return this.fornitori;
 	}
 	
+	public List<Pagamento> getPagamenti(){
+		return this.pagamenti;
+	}
+	
 	public List<Fattura> getFattureFornitoreDaPag(String fornitore) {
 		List<Fattura> l = new ArrayList<>();
 		for(Fattura f : this.fatture)
@@ -58,7 +62,7 @@ public class Model {
 		return l;
 	}
 	
-		public Integer elaboraFattura(Fattura f, List<Lavorazione> ll) {
+	public Integer elaboraFattura(Fattura f, List<Lavorazione> ll) {
 		List<Lavorazione> nuoveLav = new ArrayList<>();
 		List<Lavorazione> lavMod = new ArrayList<>();
 		List<VoceCapitolatoCantiere> nuoveVoci= new ArrayList<>();
@@ -113,26 +117,24 @@ public class Model {
 			dao.aggiungiVociCapitolatoCantiere(nuoveVoci);
 		if(vociMod.size()>0)
 			dao.aggiornaImportiVociCapitolato(vociMod);
-		//aggiornamento sezione pagamenti, se fattura già pagata
+		//aggiornamento sezione pagamenti, se fattura già pagata						
 			//se return 0 = errore inserimento importo e/o totalità pagamento
 			//se return 1 = ok, fattura attribuita correttamente a pagamento esistente
 			//se return 2 = impossibile attribuire importo pagato a fattura già esistente
 				//in quanto non si conosce l'entità del pagamento relativo (acconto / saldo)
-			//se return -1 = errore date
+																			//se return -1 = errore date -> DA CAPIRE SE HA SENSO
 			//se return null pagamento non ancora inserito
 		Integer i = null;
 		List<PagamentoFattura> pfMod = new ArrayList<>();
 		for(Pagamento p : this.pagamenti)
-			if(p.getData().isAfter(f.getData())) {
-					for(PagamentoFattura pf : p.getFatture())
-						if(p.getFornitore().equals(f.getFornitore()) && f.getNumero().contains(pf.getFattura().getNumero()) 
-								&& !this.fatture.contains(pf.getFattura())) {
-							i = f.aggiornaImportoPagato(pf);
-							pf.setFattura(f);
-							pfMod.add(pf);
-						}
-			} else i=-1;
-		if(i>0) {
+			for(PagamentoFattura pf : p.getFatture())
+				if(p.getFornitore().equals(f.getFornitore()) && f.getNumero().contains(pf.getFattura().getNumero()) 
+						&& !this.fatture.contains(pf.getFattura())) { //MANCA DA GESTIRE LA POSSIBILITA' CHE ESISTANO 
+					i = f.aggiornaImportoPagato(pf);					//PIU PAGAMENTI ANCORA DA ASSEGNARE,
+					pf.setFattura(f);									//ALLO STESSO FORN CON FATTURE CON STESSO CODICE 
+					pfMod.add(pf);
+				}
+		if(i!=null && i>0) {
 			dao.aggiornaPagamentiFattura(pfMod);
 			List<Fattura> l = new ArrayList<>();
 			l.add(f);
@@ -147,14 +149,15 @@ public class Model {
 		else return false;
 	}
 
-	public Integer elaboraPagamento(Pagamento p) {
+	public List<String> elaboraPagamento(Pagamento p) {
 		//se return 0 = errore inserimento dati => incongruenza importo-totalità pagamento
 		//se return 1 = ok, pagamento attribuito correttamente a fattura esistente
 		//se return 2 = impossibile attribuire importo pagato a fattura già esistente
 			//in quanto non si conosce l'entità del pagamento relativo (acconto / saldo)
 		//se return null = inserito pagamento fattura sconosciuta
 		Integer importiSconosciuti = 0;
-		Integer i = null;
+		List<PagamentoFattura> ok = new ArrayList<>();
+		List<String> stamp = new ArrayList<>();
 		List<Fattura> fmod = new ArrayList<>();
 		for(PagamentoFattura pf : p.getFatture())
 			//inserito pagamento per fattura di importo sconosciuto
@@ -169,18 +172,30 @@ public class Model {
 				pf.setImportoRelativo(d);
 			}
 			//aggiornamento importo relativo fattura
-			if(this.fatture.contains(pf.getFattura()) && pf.getImportoRelativo()!=null) {
-				i = pf.getFattura().aggiornaImportoPagato(pf);
-				fmod.add(pf.getFattura());
-			}
+			if(this.fatture.contains(pf.getFattura())) {
+				int i = pf.getFattura().aggiornaImportoPagato(pf);
+				if(i==0)
+					stamp.add("Errore: incongruenza tra importo fattura selezionata, importo pagamento e totalità pagamento");
+				else if (i==1)
+					stamp.add("Pagamento caricato correttamente - Attribuito a fattura esistente");
+				else if(i==2)
+					stamp.add("Pagamento caricato correttamnte - Impossibile attrubuire pagamento a fattura esistente: "
+							+ "non si può conoscere l'entità del pagamento relativo");
+				if(i==1 || i==2) {
+					ok.add(pf);
+					fmod.add(pf.getFattura());
+				}
+			} else {
+				stamp.add("Pagamento caricato correttamente - Riferito a fattura sconosciuta");
+				ok.add(pf);
+			} 
 		}
-		if(i>0) {
-			this.pagamenti.add(p);
-			dao.aggiungiPagamento(p);
-			dao.aggiungiPagamentiFattura(p);
-			dao.aggiornaImportiRelativiFattura(fmod);
-		}
-		return i;
+		p.setFatture(ok);
+		this.pagamenti.add(p);
+		dao.aggiungiPagamento(p);
+		dao.aggiungiPagamentiFattura(p);
+		dao.aggiornaImportiRelativiFattura(fmod);
+		return stamp;
 	}
 	
 }

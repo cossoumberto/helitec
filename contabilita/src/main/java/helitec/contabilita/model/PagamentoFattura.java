@@ -58,10 +58,12 @@ public class PagamentoFattura {
 		this.note = note;
 	}
 
+	
+
 	@Override
 	public String toString() {
 		return "PagamentoFattura [fattura=" + fattura + ", pagamento=" + pagamento + ", importoRelativo="
-				+ importoRelativo + ", note=" + note + "]";
+				+ importoRelativo + ", intero=" + intero + ", note=" + note + "]";
 	}
 
 	@Override
