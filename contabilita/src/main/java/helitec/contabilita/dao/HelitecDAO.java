@@ -47,9 +47,14 @@ public class HelitecDAO {
 			PreparedStatement st = conn.prepareStatement(sql);
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
-				result.add(new Fattura(res.getString("numero"), res.getDate("data").toLocalDate(), res.getString("fornitore"),
-						res.getDouble("importo_no_iva"), res.getInt("iva"), res.getDouble("importoTot"),
-						res.getDouble("ImportoPagato"), res.getString("note")));
+				Double d1 = res.getDouble("importo_no_iva");
+				Double d2= res.getDouble("importo_tot");
+				Double d3 = res.getDouble("importo_pagato");
+				if(d1==0) d1=null;
+				if(d2==0) d2=null;
+				if(d3==0) d3=null;
+ 				result.add(new Fattura(res.getString("numero"), res.getDate("data").toLocalDate(), res.getString("fornitore"),
+						d1, res.getInt("iva"), d2, d3, res.getString("note")));
 			}
 			conn.close();
 			return result;
@@ -75,8 +80,10 @@ public class HelitecDAO {
 				for(VoceCapitolatoCantiere vcc : vociCapitolatoCantieri)
 					if(vcc.getCantiere().equals(cantiere) && vcc.getVoceCapitolato().equals(res.getString("voce_capitolato")))
 							voceCapitolatoCantiere = vcc;
+				Double d1 = res.getDouble("importo");
+				if(d1==0) d1=null;
 				result.add(new Lavorazione(res.getString("descrizione"), res.getString("voce_capitolato"), cantiere,
-						voceCapitolatoCantiere, res.getDouble("importo")));
+						voceCapitolatoCantiere, d1));
 			}
 			conn.close();
 			return result;
@@ -94,8 +101,12 @@ public class HelitecDAO {
 			PreparedStatement st = conn.prepareStatement(sql);
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
+				Double d1= res.getDouble("preventivo");
+				Double d2 = res.getDouble("importo_tot");
+				if(d1==0) d1=null;
+				if(d2==0) d2=null;
 				result.add(new Cantiere(res.getInt("numero"), res.getString("denominazione"), res.getString("indirizzo"),
-						res.getString("comune"), res.getDouble("preventivo"), res.getDouble("importoTot")));
+						res.getString("comune"), d1, d2));
 			}
 			conn.close();
 			return result;
@@ -117,8 +128,11 @@ public class HelitecDAO {
 				for(Cantiere c : cantieri)
 					if(c.getNumero().equals(res.getInt("cantiere")))
 						cantiere = c;
-				result.add(new VoceCapitolatoCantiere(res.getString("voce_capitolato"),cantiere,
-						 res.getDouble("importo_previsto"), res.getDouble("importo_pagato")));
+				Double d1= res.getDouble("importo_previsto");
+				Double d2 = res.getDouble("importo_pagato");
+				if(d1==0) d1=null;
+				if(d2==0) d2=null;
+				result.add(new VoceCapitolatoCantiere(res.getString("voce_capitolato"),cantiere, d1, d2));
 			}
 			conn.close();
 			return result;
@@ -153,8 +167,11 @@ public class HelitecDAO {
 		try {
 			PreparedStatement st = conn.prepareStatement(sql);
 			ResultSet res = st.executeQuery();
-			while (res.next())
-				result.add(new Pagamento(res.getDate("data").toLocalDate(), res.getString("fornitore"), res.getDouble("importo")));
+			while (res.next()) {
+				Double d1 = res.getDouble("importo");
+				if(d1==0) d1=null;
+				result.add(new Pagamento(res.getDate("data").toLocalDate(), res.getString("fornitore"), d1));
+			}
 			conn.close();
 			return result;
 		} catch (SQLException e) {
@@ -185,8 +202,11 @@ public class HelitecDAO {
 				if(lavorazioni.contains(lavorazione))
 					lavorazione = lavorazioni.get(lavorazioni.indexOf(lavorazione));
 				else lavorazione = null;
-				Importo i = new Importo(res.getInt("numero"), fattura, lavorazione, res.getDouble("importo"), 
-						res.getDouble("importoIva"), res.getString("note"));
+				Double d1= res.getDouble("importo");
+				Double d2 = res.getDouble("importo_iva");
+				if(d1==0) d1=null;
+				if(d2==0) d2=null;
+				Importo i = new Importo(res.getInt("numero"), fattura, lavorazione, d1, d2, res.getString("note"));
 				i.getFattura().addImportoDB(i);
 				i.getLavorazione().addImportoDB(i);
 			}
@@ -205,14 +225,15 @@ public class HelitecDAO {
 			while (res.next()) {
 				Fattura fattura = new Fattura();
 				fattura.setNumero(res.getString("numero_fattura"));
-				fattura.setData(res.getDate("data_fattura").toLocalDate());
+				if(res.getDate("data_fattura")==null)
+					fattura.setData(null);
+				else fattura.setData(res.getDate("data_fattura").toLocalDate());
 				fattura.setFornitore(res.getString("fornitore"));
 				if(fatture.contains(fattura))
 					fattura = fatture.get(fatture.indexOf(fattura));
-				else fattura = null;
 				Pagamento pagamento = new Pagamento();
 				pagamento.setData(res.getDate("data_pagamento").toLocalDate());
-				pagamento.setFornitore("fornitore");
+				pagamento.setFornitore(res.getString("fornitore"));
 				if(pagamenti.contains(pagamento))
 					pagamento = pagamenti.get(pagamenti.indexOf(pagamento));
 				else pagamento = null;
@@ -223,8 +244,9 @@ public class HelitecDAO {
 					intero = Intero.ACCONTO;
 				else if(res.getInt("saldo")==1)
 					intero = Intero.SALDO;
-				PagamentoFattura pg = new PagamentoFattura(fattura, pagamento, res.getDouble("impoto_relativo"), 
-						intero, res.getString("note"));
+				Double d1 = res.getDouble("importo_relativo");
+				if(d1==0) d1=null;
+				PagamentoFattura pg = new PagamentoFattura(fattura, pagamento, d1, intero, res.getString("note"));
 				pg.getPagamento().aggiungiPagFattura(pg);
 			}
 			conn.close();
@@ -345,7 +367,7 @@ public class HelitecDAO {
 	}
 	
 	public void aggiornaImportiCantiere(List<Cantiere> cantieri) {
-		String sql = "UPDATE cantiere SET importoTot = ? WHERE numero = ?";
+		String sql = "UPDATE cantiere SET importo_tot = ? WHERE numero = ?";
 		for(Cantiere c : cantieri) {
 			try {
 				Connection conn = DBConnect.getConnection();
@@ -436,7 +458,7 @@ public class HelitecDAO {
 		}
 	}
 
-	public void aggiorniPagamentiFattura(Pagamento p) {
+	public void aggiungiPagamentiFattura(Pagamento p) {
 		String sql = "INSERT INTO pagamento_fattura VALUES (?,?,?,?,?,?,?,?,?)";
 		for(PagamentoFattura pf : p.getFatture()) {
 			try {
@@ -466,6 +488,49 @@ public class HelitecDAO {
 					st.setString(9, pf.getNote());
 				else 
 					st.setNull(9, Types.VARCHAR);
+				st.executeQuery() ;
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				System.out.println("Errore connessione al database");
+				throw new RuntimeException("Error Connection Database");
+			}
+		}
+		
+	}
+
+	public void aggiornaImportiRelativiFattura(List<Fattura> fmod) {
+		String sql = "UPDATE fattura SET importo_pagato = ? WHERE numero = ? AND data = ? AND fornitore = ?";
+		for(Fattura f : fmod) {
+			try {
+				Connection conn = DBConnect.getConnection();
+				PreparedStatement st = conn.prepareStatement(sql);
+				st.setDouble(1, f.getImportoPagato());
+				st.setString(2, f.getNumero());
+				st.setDate(3, Date.valueOf(f.getData()));
+				st.setString(4, f.getFornitore());
+				st.executeQuery() ;
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				System.out.println("Errore connessione al database");
+				throw new RuntimeException("Error Connection Database");
+			}
+		}
+	}
+
+	public void aggiornaPagamentiFattura(List<PagamentoFattura> pfMod) {
+		String sql = "UPDATE pagamento_fattura SET data_fattura= ?, importo_relativo = ?" +
+					"WHERE numero_fattura = ? AND fornitore = ? AND data_pagamento = ?";
+		for(PagamentoFattura pf : pfMod) {
+			try {
+				Connection conn = DBConnect.getConnection();
+				PreparedStatement st = conn.prepareStatement(sql);
+				st.setDate(1, Date.valueOf(pf.getFattura().getData()));
+				st.setDouble(2, pf.getImportoRelativo());
+				st.setString(3, pf.getFattura().getNumero());
+				st.setString(4, pf.getPagamento().getFornitore());
+				st.setDate(5, Date.valueOf(pf.getPagamento().getData()));
 				st.executeQuery() ;
 				conn.close();
 			} catch (SQLException e) {

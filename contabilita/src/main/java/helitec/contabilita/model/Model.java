@@ -1,13 +1,13 @@
 package helitec.contabilita.model;
 
 import java.math.BigDecimal;
+
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import helitec.contabilita.dao.HelitecDAO;
-import helitec.contabilita.model.PagamentoFattura.Intero;
 
 public class Model {
 	
@@ -31,8 +31,6 @@ public class Model {
 		this.fornitori = dao.listFornitori();
 		this.pagamenti = dao.listPagamenti();
 		dao.setPagamentiFattura(pagamenti, fatture);
-		for(Fattura f : fatture)
-			System.out.println(f.toString());
 	}
 	
 	public List<Cantiere> getCantieri() {
@@ -60,9 +58,7 @@ public class Model {
 		return l;
 	}
 	
-	
-	//AGGIORNARE CON UPDATE PAGAMENTI
-	public void elaboraFattura(Fattura f, List<Lavorazione> ll) {
+		public Integer elaboraFattura(Fattura f, List<Lavorazione> ll) {
 		List<Lavorazione> nuoveLav = new ArrayList<>();
 		List<Lavorazione> lavMod = new ArrayList<>();
 		List<VoceCapitolatoCantiere> nuoveVoci= new ArrayList<>();
@@ -117,6 +113,32 @@ public class Model {
 			dao.aggiungiVociCapitolatoCantiere(nuoveVoci);
 		if(vociMod.size()>0)
 			dao.aggiornaImportiVociCapitolato(vociMod);
+		//aggiornamento sezione pagamenti, se fattura già pagata
+			//se return 0 = errore inserimento importo e/o totalità pagamento
+			//se return 1 = ok, fattura attribuita correttamente a pagamento esistente
+			//se return 2 = impossibile attribuire importo pagato a fattura già esistente
+				//in quanto non si conosce l'entità del pagamento relativo (acconto / saldo)
+			//se return -1 = errore date
+			//se return null pagamento non ancora inserito
+		Integer i = null;
+		List<PagamentoFattura> pfMod = new ArrayList<>();
+		for(Pagamento p : this.pagamenti)
+			if(p.getData().isAfter(f.getData())) {
+					for(PagamentoFattura pf : p.getFatture())
+						if(p.getFornitore().equals(f.getFornitore()) && f.getNumero().contains(pf.getFattura().getNumero()) 
+								&& !this.fatture.contains(pf.getFattura())) {
+							i = f.aggiornaImportoPagato(pf);
+							pf.setFattura(f);
+							pfMod.add(pf);
+						}
+			} else i=-1;
+		if(i>0) {
+			dao.aggiornaPagamentiFattura(pfMod);
+			List<Fattura> l = new ArrayList<>();
+			l.add(f);
+			dao.aggiornaImportiRelativiFattura(l);
+		}
+		return i;
 	}
 
 	public boolean verificaIdFattura(Fattura f) {
@@ -125,19 +147,21 @@ public class Model {
 		else return false;
 	}
 
-	//COMPLETARE+FUNZIONI DAO PER AGG. DB
-	public void elaboraPagamento(Pagamento p) {
+	public Integer elaboraPagamento(Pagamento p) {
+		//se return 0 = errore inserimento dati => incongruenza importo-totalità pagamento
+		//se return 1 = ok, pagamento attribuito correttamente a fattura esistente
+		//se return 2 = impossibile attribuire importo pagato a fattura già esistente
+			//in quanto non si conosce l'entità del pagamento relativo (acconto / saldo)
+		//se return null = inserito pagamento fattura sconosciuta
 		Integer importiSconosciuti = 0;
-		for(PagamentoFattura pf : p.getFatture()) {
-			//caso 1: importo relativo non inserito, ma fattura interamente pagata
-			if(this.fatture.contains(pf.getFattura()) && pf.getImportoRelativo()==null && pf.getIntero().equals(Intero.INTERO))
-				pf.setImportoRelativo(this.fatture.get(this.fatture.indexOf(pf.getFattura())).getImportoTot());
-			//caso 2: inserito pagamento per fattura di importo sconosciuto
+		Integer i = null;
+		List<Fattura> fmod = new ArrayList<>();
+		for(PagamentoFattura pf : p.getFatture())
+			//inserito pagamento per fattura di importo sconosciuto
 			if(pf.getImportoRelativo()==null)
 				importiSconosciuti++;
-		}
 		for(PagamentoFattura pf : p.getFatture()) {
-			//caso 2: inserito pagamento per fattura di importo sconosciuto
+			//inserito pagamento per fattura di importo sconosciuto
 			if(importiSconosciuti==1 && pf.getImportoRelativo()==null) {
 				Double d = p.getImporto()-p.getSommaImportiRelativi();
 				BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);
@@ -146,18 +170,17 @@ public class Model {
 			}
 			//aggiornamento importo relativo fattura
 			if(this.fatture.contains(pf.getFattura()) && pf.getImportoRelativo()!=null) {
-				if(this.fatture.get(this.fatture.indexOf(pf.getFattura())).getImportoPagato()==null)
-					this.fatture.get(this.fatture.indexOf(pf.getFattura())).setImportoPagato(0.0);
-				Double d = this.fatture.get(this.fatture.indexOf(pf.getFattura())).getImportoPagato() + pf.getImportoRelativo();
-				BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);
-				d = x.doubleValue();
-				this.fatture.get(this.fatture.indexOf(pf.getFattura())).setImportoPagato(d);	
+				i = pf.getFattura().aggiornaImportoPagato(pf);
+				fmod.add(pf.getFattura());
 			}
 		}
-		this.pagamenti.add(p);
-		dao.aggiungiPagamento(p);
-		dao.aggiorniPagamentiFattura(p);
-		//aggiornamento importa pagato fattura su db da aggiornare
+		if(i>0) {
+			this.pagamenti.add(p);
+			dao.aggiungiPagamento(p);
+			dao.aggiungiPagamentiFattura(p);
+			dao.aggiornaImportiRelativiFattura(fmod);
+		}
+		return i;
 	}
 	
 }

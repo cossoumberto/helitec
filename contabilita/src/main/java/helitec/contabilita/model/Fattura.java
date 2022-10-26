@@ -1,11 +1,14 @@
 package helitec.contabilita.model;
 
 import java.math.BigDecimal;
+
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import helitec.contabilita.model.PagamentoFattura.Intero;
 
 public class Fattura implements Comparable<Fattura>{
 	
@@ -38,10 +41,10 @@ public class Fattura implements Comparable<Fattura>{
 		this.numero = null;
 		this.data = null;
 		this.fornitore = null;
-		this.importoNoIva = null;
+		this.importoNoIva = null;																	
 		this.iva = null;
-		this.importoTot = null;
-		this.importoPagato = null;
+		this.importoTot = null;																			
+		this.importoPagato = null;				
 		this.note = null;
 		this.importi = new ArrayList<>();
 	}
@@ -132,6 +135,38 @@ public class Fattura implements Comparable<Fattura>{
 		this.importoPagato = importoPagato;
 	}
 	
+	public int aggiornaImportoPagato(PagamentoFattura pf) {
+		//se non conosco importo relativo, ma pagamento intero
+		if(pf.getImportoRelativo()==null)																	
+			if(pf.getIntero().equals(Intero.INTERO)) {
+				pf.setImportoRelativo(this.importoTot);
+			}
+		//se conosco importo relativo
+		if(pf.getImportoRelativo()!=null) {																	
+			if(pf.getImportoRelativo().equals(this.importoTot)) {
+				if(pf.getIntero().equals(Intero.INTERO)) {				
+					if(this.importoPagato==null)														
+						this.importoPagato = 0.0;
+					Double d = this.importoPagato + pf.getImportoRelativo();
+					BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);;
+					this.importoPagato = x.doubleValue();
+					return 1;
+				} else return 0;
+			} else if(pf.getImportoRelativo()<this.importoTot) {
+				if(pf.getIntero().equals(Intero.SALDO) || pf.getIntero().equals(Intero.ACCONTO)) {
+					if(this.importoPagato==null)														
+						this.importoPagato = 0.0;
+					Double d = this.importoPagato + pf.getImportoRelativo();
+					BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);;
+					this.importoPagato = x.doubleValue();
+					return 1;
+				} else return 0;
+			} else return 0;
+		} 
+		// se non conosco importo relativo e i pagamenti sono acconti o saldi
+		return 2;
+	}
+	
 	public String getNote() {
 		return note;
 	}
@@ -147,7 +182,7 @@ public class Fattura implements Comparable<Fattura>{
 	
 	public void addImporto (Importo i) {
 		this.importi.add(i);
-		if(this.importoNoIva==null || this.importoTot==null) {
+		if(this.importoNoIva==null || this.importoTot==null) {											
 			this.importoNoIva = 0.0;
 			this.importoTot = 0.0;
 		}
@@ -184,18 +219,17 @@ public class Fattura implements Comparable<Fattura>{
 		return s;
 	}
 
-
 	@Override
 	public String toString() {
 		String s = null;
 		if(this.data!=null) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 			s = fornitore + " - Fattura " + numero + " del " + data.format(formatter) 
-			+ " - Importo: " + importoTot + " - Pagato: ";
-			if(importoPagato!=null)
-				s += importoPagato;
-			else 
+			+ " - Importo: " + importoTot + " - Pagato: ";	
+			if(this.importoPagato==null)
 				s += 0;
+			else 
+				s += this.importoPagato;
 		} else
 			s = fornitore + " - Fattura " + numero;
 		return s;
@@ -244,8 +278,6 @@ public class Fattura implements Comparable<Fattura>{
 		if(!this.data.equals(o.data))
 			return this.data.compareTo(o.data);
 		else return this.numero.compareTo(o.numero);
-	}
-	
-		
+	}	
 }
 

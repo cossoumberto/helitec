@@ -137,9 +137,19 @@ public class FXMLController {
     		if(this.IFtxtNoteFattura.getText().trim().length()>0)
     			f.setNote(this.IFtxtNoteFattura.getText().trim().toUpperCase());
     		fnew = new Fattura(f);
-    		model.elaboraFattura(fnew, ll);
+    		Integer i = model.elaboraFattura(fnew, ll);
     		this.IFtxtArea.setText(f.toStringConImporti());
     		this.IFtxtArea.appendText("\n\nFattura caricata correttamente");
+    		if(i==0)
+    			this.IFtxtArea.appendText("\nErrore: ingruenza importo fattura - dati pagamento esistente");
+    		else if(i==1)
+    			this.IFtxtArea.appendText(" e attribuita a pagamento esistente");
+    		else if(i==2)
+    			this.IFtxtArea.appendText("\nImpossibile attrubuire pagamento alla fattura senza importo pagamento relativo");
+    		else if(i==-1)
+    			this.IFtxtArea.appendText("\nErrore: ingruenza date fattura-pagamento");
+    		else if(i==null)
+    			this.IFtxtArea.appendText("\nFattura da pagare");
     		this.f = null;
     		this.ll = new ArrayList<>();
     		this.IFtxtFornitore.setEditable(true);
@@ -277,13 +287,15 @@ public class FXMLController {
     
     @FXML
     void IFricercaVoci(KeyEvent event) {
-    	String ins = this.IFtxtRicercaVoce.getText().trim().toUpperCase();
-    	List<String> list = new ArrayList<>();
-    	for(String s : model.getVociCapitolato())
-    		if(s.contains(ins))
-    			list.add(s);
-    	this.IFboxVoci.getItems().clear();
-    	this.IFboxVoci.getItems().addAll(list);
+    	if(this.IFtxtRicercaVoce.getText().trim().length()>0) {
+	    	String ins = this.IFtxtRicercaVoce.getText().trim().toUpperCase();
+	    	List<String> list = new ArrayList<>();
+	    	for(String s : model.getVociCapitolato())
+	    		if(s.contains(ins))
+	    			list.add(s);
+	    	this.IFboxVoci.getItems().clear();
+	    	this.IFboxVoci.getItems().addAll(list);
+    	}
     }
     
     
@@ -344,9 +356,19 @@ public class FXMLController {
 
     @FXML
     void IPconferma(ActionEvent event) {
+    	Integer i = null;
     	if(this.p!=null && p.getFatture().size()>0 && this.IPtxtArea.getText().equals(p.toStringConFatture())) {
-    		model.elaboraPagamento(p);
-    		this.IPtxtArea.appendText("\n\nPagamento caricato correttamente");
+    		i = model.elaboraPagamento(p);
+    		if(i==0)
+    			this.IPtxtArea.appendText
+    				("\n\nErrore: incongruenza tra importo fattura selezionata, importo pagamento e totalità pagamento");
+    		else this.IPtxtArea.appendText("\n\nPagamento caricato correttamente");
+    		if(i==1)
+    			this.IPtxtArea.appendText(" e attribuito correttamente a fattura esistente");
+    		else if(i==-1)
+    			this.IPtxtArea.appendText("\nImpossibile attrubuire pagamento a fattura esistente senza importo relativo");
+    		else if(i==null)
+    			this.IPtxtArea.appendText("\nFattura pagata sconosciuta");
     		p = null;
     		this.IPtxtFornitore.setEditable(true);
     		this.IPdata.setDisable(false);
@@ -355,7 +377,7 @@ public class FXMLController {
     }
 
     @FXML
-    void IPinserisci(ActionEvent event) {
+    void IPinserisci(ActionEvent event) { //gestire inserimento di pagamenti gia effettuati e di fatture gia pagate + vincoli date
     	//Gestione inserimento dati comuni del pagamento
     	if(this.p==null) {
     		p = new Pagamento();
@@ -437,7 +459,7 @@ public class FXMLController {
     	this.IPtxtFornitore.clear();
     	this.IPtxtFornitore.setEditable(true);
     	this.IPdata.setValue(null);
-    	this.IPdata.setDisable(true);
+    	this.IPdata.setDisable(false);
     	this.IPtxtImporto.setEditable(true);
     	this.IPtxtImporto.clear();
     	this.IPtxtNumFattura.clear();
