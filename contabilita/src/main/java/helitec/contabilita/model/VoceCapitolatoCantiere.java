@@ -1,16 +1,12 @@
 package helitec.contabilita.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class VoceCapitolatoCantiere {
 	
 	private String voceCapitolato;
 	private Cantiere cantiere;
 	private Double importoPrevisto;
 	private Double importoPagato;
-	private List<Lavorazione> lavorazioni;
-	
+
 	public VoceCapitolatoCantiere(String voceCapitolato, Cantiere cantiere, Double importoPrevisto,
 			Double importoPagato) {
 		super();
@@ -18,7 +14,6 @@ public class VoceCapitolatoCantiere {
 		this.cantiere = cantiere;
 		this.importoPrevisto = importoPrevisto;
 		this.importoPagato = importoPagato;
-		this.lavorazioni = new ArrayList<>();
 	}
 
 	public VoceCapitolatoCantiere() {
@@ -26,7 +21,7 @@ public class VoceCapitolatoCantiere {
 		this.cantiere = null;
 		this.importoPrevisto = null;
 		this.importoPagato = null;
-		this.lavorazioni = new ArrayList<>();
+
 	}
 
 	public String getVoceCapitolato() {
@@ -59,14 +54,6 @@ public class VoceCapitolatoCantiere {
 
 	public void setImportoPagato(Double importoPagato) {
 		this.importoPagato = importoPagato;
-	}
-	
-	public List<Lavorazione> getLavorazioni() {
-		return lavorazioni;
-	}
-	
-	public void aggiungiLavorazione(Lavorazione l) {
-		this.lavorazioni.add(l);
 	}
 
 	@Override

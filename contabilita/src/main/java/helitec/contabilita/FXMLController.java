@@ -56,6 +56,9 @@ public class FXMLController {
 
     @FXML // fx:id="IFboxIVA"
     private ComboBox<Integer> IFboxIVA; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="IFtxtRicercaCantiere"
+    private TextField IFtxtRicercaCantiere; // Value injected by FXMLLoader
 
     @FXML // fx:id="IFboxCantieri"
     private ComboBox<Cantiere> IFboxCantieri; // Value injected by FXMLLoader
@@ -133,8 +136,12 @@ public class FXMLController {
     void IFconferma(ActionEvent event) {
     	Fattura fnew = null;
     	if(f!=null && f.getImporti().size()>0 && this.IFtxtArea.getText().equals(f.toStringConImporti())) {
-    		if(this.IFtxtNoteFattura.getText().trim().length()>0)
+    		if(this.IFtxtNoteFattura.getText().trim().length()>0 && this.IFtxtNoteFattura.getText().trim().length()<=400)
     			f.setNote(this.IFtxtNoteFattura.getText().trim().toUpperCase());
+    		else if(this.IFtxtNoteFattura.getText().trim().length()>400) {
+    			this.IFtxtArea.appendText("\n\nInserire max 400 caratteri in Note Fattura");
+    			return;
+    		}
     		fnew = new Fattura(f);
     		Integer i = model.elaboraFattura(fnew, ll);
     		this.IFtxtArea.setText(f.toStringConImporti());
@@ -175,7 +182,7 @@ public class FXMLController {
     		if(model.verificaIdFattura(f)==true) {
     			f =  null;
     			this.IFtxtArea.setText("Inseriti dati fattura già esistente");
-    			return;
+    			return; 
     		}
     		this.f.setIva(this.IFboxIVA.getValue());
     		if(this.f.getFornitore()==null || this.f.getNumero()==null || this.f.getData()==null || this.f.getIva()==null) {
@@ -227,10 +234,13 @@ public class FXMLController {
     	
     	//Creazione importo per fattura
     	Importo i = null;
-    	if(this.IFtxtNoteImporto.getText().trim().length()!=0)
+    	if(this.IFtxtNoteImporto.getText().trim().length()>0 && this.IFtxtNoteImporto.getText().trim().length()<=400)
     		i = new Importo(this.f.getImporti().size()+1, f, l, importoLavNoIva, importoLav,
     			this.IFtxtNoteImporto.getText().trim().toUpperCase());
-    	else 
+    	else if(this.IFtxtNoteImporto.getText().trim().length()>400) {
+    		this.IFtxtArea.appendText("\n\nInserire max 400 caratteri in Note");
+			return;
+    	} else
     		i = new Importo(this.f.getImporti().size()+1, f, l, importoLavNoIva, importoLav, null);
     	this.f.addImporto(i);
     	
@@ -271,6 +281,7 @@ public class FXMLController {
     	this.IFdata.setEditable(true);
     	this.IFboxIVA.setValue(null);
     	this.IFboxIVA.setDisable(false);
+    	this.IFtxtRicercaCantiere.clear();
     	this.IFboxCantieri.setValue(null);
     	this.IFtxtLavorazione.clear();
     	this.IFtxtRicercaVoce.clear();
@@ -285,6 +296,20 @@ public class FXMLController {
     }
     
     @FXML
+    void IFricercaCantiere(KeyEvent event) {
+    	if(this.IFtxtRicercaCantiere.getText().trim().length()>0) {
+	    	String ins = this.IFtxtRicercaCantiere.getText().trim().toUpperCase();
+	    	List<Cantiere> list = new ArrayList<>();
+	    	for(Cantiere c : model.getCantieri())
+	    		if(c.toString().contains(ins))
+	    			list.add(c);
+	    	this.IFboxCantieri.getItems().clear();
+	    	this.IFboxCantieri.getItems().add(null);
+	    	this.IFboxCantieri.getItems().addAll(list);
+    	}
+    }
+    
+    @FXML
     void IFricercaVoci(KeyEvent event) {
     	if(this.IFtxtRicercaVoce.getText().trim().length()>0) {
 	    	String ins = this.IFtxtRicercaVoce.getText().trim().toUpperCase();
@@ -293,6 +318,7 @@ public class FXMLController {
 	    		if(s.contains(ins))
 	    			list.add(s);
 	    	this.IFboxVoci.getItems().clear();
+	    	this.IFboxVoci.getItems().add(null);
 	    	this.IFboxVoci.getItems().addAll(list);
     	}
     }
@@ -418,10 +444,6 @@ public class FXMLController {
     	    	}
     	} else 
     		f = this.IPboxFatture.getValue();
-    	if(f.getData()!=null && f.getData().isAfter(p.getData())) {
-    		this.IPtxtArea.appendText("\n\nImpossibile inserire pagamento con data successiva a emissione fattura");
-    		return;
-    	}
     	for(PagamentoFattura pf : p.getFatture())
 	    	if(pf.getFattura().equals(f)) {
 	    		this.IPtxtArea.appendText("\n\nFattura già inserita");
@@ -431,7 +453,8 @@ public class FXMLController {
     	if(this.IPtxtImportoRel.getText().length()>0) {
 	    	try {
 				importoRel = Double.parseDouble(this.IPtxtImportoRel.getText());
-				if(importoRel<0 || importoRel + p.getSommaImportiRelativi() > p.getImporto() || importoRel > f.getImportoTot())
+				if(importoRel<0 || importoRel + p.getSommaImportiRelativi() > p.getImporto() || 
+						(f.getImportoTot()!=null && importoRel > f.getImportoTot()) )
 					throw new NumberFormatException();
 	   		} catch (NumberFormatException e) {
 				this.IPtxtArea.appendText("\n\nInserimento importo relativo non valido");
@@ -446,10 +469,17 @@ public class FXMLController {
     		intero = Intero.ACCONTO;
     	else if(this.IPboxIntero.getValue().equals("Saldo"))
     		intero = Intero.SALDO;
+    	if(f.getData()!=null && f.getData().isAfter(p.getData()) && !intero.equals(Intero.ACCONTO)) {
+    		this.IPtxtArea.appendText("\n\nImpossibile inserire pagamento (che non sia acconto) con data successiva a emissione fattura");
+    		return;
+    	}
     	String note = null;
-    	if(this.IPtxtNotePagFatt.getText().length()>0)
+    	if(this.IPtxtNotePagFatt.getText().length()>0 && this.IPtxtNotePagFatt.getText().length()<=400)
     		note = this.IPtxtNotePagFatt.getText();
-    	
+    	else if(this.IPtxtNotePagFatt.getText().length()>400) {
+    		this.IPtxtArea.appendText("\n\nInserire max 400 caratteri in Note Pagamento Fattura");
+			return;
+    	}
     	//Creazione e visualizzazione risultati + disattivazione input dati comuni
     	PagamentoFattura pf = new PagamentoFattura(f, p, importoRel, intero, note);
     	p.aggiungiPagFattura(pf);
@@ -509,6 +539,7 @@ public class FXMLController {
         assert IFtxtNum != null : "fx:id=\"IFtxtNum\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFdata != null : "fx:id=\"IFdata\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFboxIVA != null : "fx:id=\"IFboxIVA\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert IFtxtRicercaCantiere != null : "fx:id=\"IFtxtRicercaCantiere\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFboxCantieri != null : "fx:id=\"IFboxCantieri\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFtxtLavorazione != null : "fx:id=\"IFtxtLavorazione\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IFtxtRicercaVoce != null : "fx:id=\"IFtxtRicercaVoce\" was not injected: check your FXML file 'Scene.fxml'.";

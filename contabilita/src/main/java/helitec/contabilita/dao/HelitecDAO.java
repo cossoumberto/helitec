@@ -293,14 +293,19 @@ public class HelitecDAO {
 				st.setString(2, f.getNumero());
 				st.setDate(3, Date.valueOf(f.getData()));
 				st.setString(4, f.getFornitore());
-				if(i.getLavorazione().getCantiere()!=null)
-					st.setInt(5, i.getLavorazione().getCantiere().getNumero()); 
-				else 
+				if(i.getLavorazione()!=null) {
+					if(i.getLavorazione().getCantiere()!=null)
+						st.setInt(5, i.getLavorazione().getCantiere().getNumero()); 
+					else 
+						st.setNull(5, Types.INTEGER);
+					if(i.getLavorazione().getDescrizione()!=null)
+						st.setString(6, i.getLavorazione().getDescrizione());
+					else
+						st.setNull(6, Types.VARCHAR);
+				} else {
 					st.setNull(5, Types.INTEGER);
-				if(i.getLavorazione().getDescrizione()!=null)
-					st.setString(6, i.getLavorazione().getDescrizione());
-				else
 					st.setNull(6, Types.VARCHAR);
+				}
 				st.setDouble(7, i.getImporto());
 				st.setDouble(8, i.getImportoIva());
 				if(i.getNote()!=null)
@@ -372,7 +377,10 @@ public class HelitecDAO {
 			try {
 				Connection conn = DBConnect.getConnection();
 				PreparedStatement st = conn.prepareStatement(sql);
-				st.setDouble(1, c.getImportoTotale());
+				if(c.getImportoTotale()!=null)
+					st.setDouble(1, c.getImportoTotale());
+				else
+					st.setNull(1, Types.DOUBLE);
 				st.setInt(2, c.getNumero());
 				st.executeQuery() ;
 				conn.close();
@@ -413,7 +421,10 @@ public class HelitecDAO {
 			try {
 				Connection conn = DBConnect.getConnection();
 				PreparedStatement st = conn.prepareStatement(sql);
-				st.setDouble(1, vcc.getImportoPagato());
+				if(vcc.getImportoPagato()!=null)
+					st.setDouble(1, vcc.getImportoPagato());
+				else
+					st.setNull(1, Types.DOUBLE);
 				st.setString(2, vcc.getVoceCapitolato());
 				st.setInt(3, vcc.getCantiere().getNumero());
 				st.executeQuery() ;

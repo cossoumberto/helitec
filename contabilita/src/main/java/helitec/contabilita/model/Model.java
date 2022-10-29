@@ -67,6 +67,7 @@ public class Model {
 		List<Lavorazione> lavMod = new ArrayList<>();
 		List<VoceCapitolatoCantiere> nuoveVoci= new ArrayList<>();
 		List<VoceCapitolatoCantiere> vociMod = new ArrayList<>();
+		List<VoceCapitolatoCantiere> vccAgg = new ArrayList<>();
 		if(ll.size()>0) {
 			VoceCapitolatoCantiere voceCapitolatoCantiere = null;
 			for(Lavorazione l : ll) {
@@ -78,7 +79,6 @@ public class Model {
 					} else
 						vociMod.add(this.vociCapitolatoCantiere.get(this.vociCapitolatoCantiere.indexOf(voceCapitolatoCantiere)));
 					l.setVoceCapitolatoCantiere(this.vociCapitolatoCantiere.get(this.vociCapitolatoCantiere.indexOf(voceCapitolatoCantiere)));
-					this.vociCapitolatoCantiere.get(this.vociCapitolatoCantiere.indexOf(voceCapitolatoCantiere)).aggiungiLavorazione(l);
 				}
 				for(Importo i : f.getImporti())
 					if(i.getLavorazione().equals(l))
@@ -93,6 +93,9 @@ public class Model {
 				}
 			}
 		}
+		vccAgg.addAll(nuoveVoci);
+		vccAgg.addAll(vociMod);
+		this.aggiornaImportiVociCapitolatoCantierer(vccAgg);
 		fatture.add(f);
 		if(!this.fornitori.contains(f.getFornitore())) {
 			fornitori.add(f.getFornitore());
@@ -111,6 +114,7 @@ public class Model {
 		for(Lavorazione l : lavMod)
 			if(l.getCantiere()!=null && !cTemp.contains(l.getCantiere()))
 				cTemp.add(l.getCantiere());
+		this.aggiornaImportiCantieri(cTemp);
 		if(cTemp.size()>0)
 			dao.aggiornaImportiCantiere(cTemp);
 		if(nuoveVoci.size()>0)
@@ -142,6 +146,35 @@ public class Model {
 		}
 		return i;
 	}
+	
+	
+
+	private void aggiornaImportiCantieri(List<Cantiere> cTemp) {
+		for(Cantiere c : cTemp) {
+			Double d = 0.0;
+			for(Lavorazione l : this.lavorazioni) {
+				if(c.equals(l.getCantiere())) {
+					d += l.getImporto();
+					BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);
+					d = x.doubleValue();
+				}
+			}
+			c.setImportoTotale(d);
+		}
+	}
+	
+	private void aggiornaImportiVociCapitolatoCantierer(List<VoceCapitolatoCantiere> listVcc) {
+		for(VoceCapitolatoCantiere vcc : listVcc) {
+			Double d = 0.0;
+			for(Lavorazione l : this.lavorazioni) {
+				if(vcc.equals(l.getVoceCapitolatoCantiere()))
+					d += l.getImporto();
+					BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);
+					d = x.doubleValue();
+			}
+			vcc.setImportoPagato(d);
+		}
+	}
 
 	public boolean verificaIdFattura(Fattura f) {
 		if(fatture.contains(f))
@@ -161,7 +194,7 @@ public class Model {
 		List<Fattura> fmod = new ArrayList<>();
 		for(PagamentoFattura pf : p.getFatture())
 			//inserito pagamento per fattura di importo sconosciuto
-			if(pf.getImportoRelativo()==null)
+			if(pf.getImportoRelativo()==null) 
 				importiSconosciuti++;
 		for(PagamentoFattura pf : p.getFatture()) {
 			//inserito pagamento per fattura di importo sconosciuto

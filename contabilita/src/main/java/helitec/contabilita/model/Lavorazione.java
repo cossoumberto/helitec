@@ -79,31 +79,20 @@ public class Lavorazione {
 	}
 
 	public void addImporto (Importo i) {
-		//aggiornamento importi lavorazione
 		this.importi.add(i);
-		if(this.importo==null) 																	
-			this.importo = 0.0;
-		this.importo += i.getImporto();
-		BigDecimal x = new BigDecimal(this.importo).setScale(2, RoundingMode.HALF_EVEN);
-		this.importo = x.doubleValue();
-		//aggiornamento importo cantiere
-		if(this.cantiere!=null) {
-			if(this.cantiere.getImportoTotale()==null)											
-				this.cantiere.setImportoTotale(0.0);
-			Double importoc = this.cantiere.getImportoTotale() + i.getImporto();
-			BigDecimal x1 = new BigDecimal(importoc).setScale(2, RoundingMode.HALF_EVEN);
-			this.cantiere.setImportoTotale(x1.doubleValue());
-		}
-		//aggiornamento importo voce capitolato
-		if(this.voceCapitolatoCantiere!=null) {
-			if(this.voceCapitolatoCantiere.getImportoPagato()==null)								
-				this.voceCapitolatoCantiere.setImportoPagato(0.0);
-			Double importov = this.voceCapitolatoCantiere.getImportoPagato() + i.getImporto();
-			BigDecimal x2 = new BigDecimal(importov).setScale(2, RoundingMode.HALF_EVEN);
-			this.voceCapitolatoCantiere.setImportoPagato(x2.doubleValue());
-		}
+		this.aggiornaImportoTotLavorazione();
 	}
 	
+	public void aggiornaImportoTotLavorazione() {
+		Double d = 0.0;
+		for(Importo i : this.importi ) {
+			d += i.getImporto();
+			BigDecimal x = new BigDecimal(d).setScale(2, RoundingMode.HALF_EVEN);
+			d = x.doubleValue();
+		}
+		this.importo = d;
+	}
+
 	public void addImportoDB(Importo i) {
 		this.importi.add(i);
 	}
