@@ -275,7 +275,9 @@ public class Fattura implements Comparable<Fattura>{
 
 	@Override
 	public int compareTo(Fattura o) {
-		if(!this.data.equals(o.data))
+		if(!this.fornitore.equals(o.fornitore))
+			return this.fornitore.compareTo(o.fornitore);
+		else if(!this.data.equals(o.data))
 			return this.data.compareTo(o.data);
 		else return this.numero.compareTo(o.numero);
 	}	

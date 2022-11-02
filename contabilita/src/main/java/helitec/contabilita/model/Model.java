@@ -3,6 +3,7 @@ package helitec.contabilita.model;
 import java.math.BigDecimal;
 
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +39,11 @@ public class Model {
 		return this.cantieri;
 	}
 	
+	public List<Fattura> getFatture() {
+		Collections.sort(this.fatture);
+		return fatture;
+	}
+	
 	public List<String> getVociCapitolato(){
 		Collections.sort(this.vociCapitolato);
 		return this.vociCapitolato;
@@ -50,6 +56,15 @@ public class Model {
 	
 	public List<Pagamento> getPagamenti(){
 		return this.pagamenti;
+	}
+	
+	public List<String> getDescrizioniLavorazioni(){
+		List<String> list = new ArrayList<>();
+		for(Lavorazione l : this.lavorazioni)
+			if(l.getDescrizione()!=null && !list.contains(l.getDescrizione()))
+				list.add(l.getDescrizione());
+		Collections.sort(list);
+		return list;
 	}
 	
 	public List<Fattura> getFattureFornitoreDaPag(String fornitore) {
@@ -230,5 +245,12 @@ public class Model {
 		dao.aggiornaImportiRelativiFattura(fmod);
 		return stamp;
 	}
+
+	public List<Fattura> getFattureRichieste(List<String> forn, List<Cantiere> cant, List<String> lav,
+			List<String> voci, LocalDate dataDa, LocalDate dataA) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 }

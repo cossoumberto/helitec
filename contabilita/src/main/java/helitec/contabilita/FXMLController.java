@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -306,7 +307,19 @@ public class FXMLController {
 	    	this.IFboxCantieri.getItems().clear();
 	    	this.IFboxCantieri.getItems().add(null);
 	    	this.IFboxCantieri.getItems().addAll(list);
+    	} else {
+    		this.IFboxCantieri.getItems().clear();
+	    	this.IFboxCantieri.getItems().add(null);
+	    	this.IFboxCantieri.getItems().addAll(model.getCantieri());
     	}
+    }
+    
+    @FXML
+    void IFricercaForn(KeyEvent event) {
+    	if(this.IFtxtFornitore.getText().trim().length()>0 && !model.getFornitori().contains(this.IFtxtFornitore.getText().trim().toUpperCase()))
+			this.IFtxtArea.setText("Fornitore inserito non esistente");
+    	else 
+    		this.IFtxtArea.clear();
     }
     
     @FXML
@@ -320,6 +333,10 @@ public class FXMLController {
 	    	this.IFboxVoci.getItems().clear();
 	    	this.IFboxVoci.getItems().add(null);
 	    	this.IFboxVoci.getItems().addAll(list);
+    	} else {
+    		this.IFboxVoci.getItems().clear();
+	    	this.IFboxVoci.getItems().add(null);
+	    	this.IFboxVoci.getItems().addAll(model.getVociCapitolato());
     	}
     }
     
@@ -525,6 +542,293 @@ public class FXMLController {
     		this.IPtxtImportoRel.setText(this.IPboxFatture.getValue().getImportoTot().toString());
     }
     
+    //TAB FATTURE
+    
+    private List<String> forn;
+    private List<Cantiere> cant;
+    private List<String> lav;
+    private List<String> voci;
+    
+    @FXML // fx:id="FAboxForn"
+    private ComboBox<String> FAboxForn; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAdataDa"
+    private DatePicker FAdataDa; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAdataA"
+    private DatePicker FAdataA; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAbtnInserisci"
+    private Button FAbtnInserisci; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAboxCant"
+    private ComboBox<Cantiere> FAboxCant; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAboxLav"
+    private ComboBox<String> FAboxLav; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAboxVoce"
+    private ComboBox<String> FAboxVoce; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAbtnRimuovi"
+    private Button FAbtnRimuovi; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtRicercaLav"
+    private TextField FAtxtRicercaLav; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtRicercaVoce"
+    private TextField FAtxtRicercaVoce; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtRicercaCant"
+    private TextField FAtxtRicercaCant; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtRicercaForn"
+    private TextField FAtxtRicercaForn; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtArea"
+    private TextArea FAtxtArea; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtImportoFattura"
+    private TextField FAtxtImportoFattura; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAboxFatture"
+    private ComboBox<Fattura> FAboxFatture; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtNoteFattura"
+    private TextField FAtxtNoteFattura; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAbtnCancNoteFattura"
+    private Button FAbtnCancNoteFattura; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAbtnModNoteFattura"
+    private Button FAbtnModNoteFattura; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAboxImporti"
+    private ComboBox<Importo> FAboxImporti; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAboxCant2"
+    private ComboBox<Cantiere> FAboxCant2; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtLavorazione"
+    private TextField FAtxtLavorazione; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtRicercaVoce2"
+    private TextField FAtxtRicercaVoce2; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAboxVoce2"
+    private ComboBox<String> FAboxVoce2; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAbtnCanImporto"
+    private Button FAbtnCanImporto; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtImportNoIva"
+    private TextField FAtxtImportNoIva; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtImportoTot"
+    private TextField FAtxtImportoTot; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAbtnInserisci2"
+    private Button FAbtnInserisci2; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtRicercaCant2"
+    private TextField FAtxtRicercaCant2; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAtxtNoteImporto"
+    private TextField FAtxtNoteImporto; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAbtnCancInserimento"
+    private Button FAbtnCancInserimento; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAbtnConferma"
+    private Button FAbtnConferma; // Value injected by FXMLLoader
+
+    @FXML // fx:id="FAbtnReset"
+    private Button FAbtnReset; // Value injected by FXMLLoader
+
+    @FXML
+    void FAricercaCant(KeyEvent event) {
+    	if(this.FAtxtRicercaCant.getText().trim().length()>0) {
+	    	String ins = this.FAtxtRicercaCant.getText().trim().toUpperCase();
+	    	List<Cantiere> list = new ArrayList<>();
+	    	for(Cantiere c : model.getCantieri())
+	    		if(c.toString().contains(ins))
+	    			list.add(c);
+	    	this.FAboxCant.getItems().clear();
+	    	this.FAboxCant.getItems().add(null);
+	    	this.FAboxCant.getItems().addAll(list);
+    	} else {
+    		this.FAboxCant.getItems().clear();
+	    	this.FAboxCant.getItems().add(null);
+	    	this.FAboxCant.getItems().addAll(model.getCantieri());
+    	}
+    }
+
+    @FXML
+    void FAricercaForn(KeyEvent event) {
+    	if(this.FAtxtRicercaForn.getText().trim().length()>0) {
+	    	String ins = this.FAtxtRicercaForn.getText().trim().toUpperCase();
+	    	List<String> list = new ArrayList<>();
+	    	for(String s : model.getFornitori())
+	    		if(s.contains(ins))
+	    			list.add(s);
+	    	this.FAboxForn.getItems().clear();
+	    	this.FAboxForn.getItems().add(null);
+	    	this.FAboxForn.getItems().addAll(list);
+    	} else {
+    		this.FAboxForn.getItems().clear();
+	    	this.FAboxForn.getItems().add(null);
+	    	this.FAboxForn.getItems().addAll(model.getFornitori());
+    	}
+    }
+
+    @FXML
+    void FAricercaLav(KeyEvent event) {
+    	if(this.FAtxtRicercaLav.getText().trim().length()>0) {
+	    	String ins = this.FAtxtRicercaLav.getText().trim().toUpperCase();
+	    	List<String> list = new ArrayList<>();
+	    	for(String s : model.getDescrizioniLavorazioni())
+	    		if(s.contains(ins))
+	    			list.add(s);
+	    	this.FAboxLav.getItems().clear();
+	    	this.FAboxLav.getItems().add(null);
+	    	this.FAboxLav.getItems().addAll(list);
+    	} else {
+    		this.FAboxForn.getItems().clear();
+	    	this.FAboxForn.getItems().add(null);
+	    	this.FAboxForn.getItems().addAll(model.getDescrizioniLavorazioni());
+    	}
+    }
+
+    @FXML
+    void FAricercaVoce(KeyEvent event) {
+    	if(this.FAtxtRicercaVoce.getText().trim().length()>0) {
+	    	String ins = this.FAtxtRicercaVoce.getText().trim().toUpperCase();
+	    	List<String> list = new ArrayList<>();
+	    	for(String s : model.getVociCapitolato())
+	    		if(s.contains(ins))
+	    			list.add(s);
+	    	this.FAboxVoce.getItems().clear();
+	    	this.FAboxVoce.getItems().add(null);
+	    	this.FAboxVoce.getItems().addAll(list);
+    	} else {
+    		this.FAboxVoce.getItems().clear();
+	    	this.FAboxVoce.getItems().add(null);
+	    	this.FAboxVoce.getItems().addAll(model.getVociCapitolato());
+    	}
+    }
+
+    @FXML
+    void FAsetFattura(ActionEvent event) {
+    	if(this.FAboxFatture.getValue()!=null) {
+    		this.FAtxtArea.setText(this.FAboxFatture.getValue().toStringConImporti());
+    		this.FAtxtImportoFattura.setText(this.FAboxFatture.getValue().getImportoTot().toString());
+    		this.FAtxtNoteFattura.setText(this.FAboxFatture.getValue().getNote());
+    	}
+    }
+    
+
+    @FXML
+    void FAcancImporto(ActionEvent event) {
+
+    }
+
+    @FXML
+    void FAcancInserimento(ActionEvent event) {
+
+    }
+
+    @FXML
+    void FAcancNoteFattura(ActionEvent event) {
+
+    }
+
+    @FXML
+    void FAconferma(ActionEvent event) {
+
+    }
+
+    @FXML
+    void FAinserisci(ActionEvent event) {
+    	if(this.FAboxForn.getValue()!=null && !this.forn.contains(this.FAboxForn.getValue()))
+    		forn.add(this.FAboxForn.getValue());
+    	if(this.FAboxCant.getValue()!=null && !this.cant.contains(this.FAboxCant.getValue()))
+			cant.add(this.FAboxCant.getValue());
+    	if(this.FAboxLav.getValue()!=null && !this.lav.contains(this.FAboxLav.getValue()))
+			lav.add(this.FAboxLav.getValue());
+    	if(this.FAboxVoce.getValue()!=null && !this.voci.contains(this.FAboxVoce.getValue()))
+    		voci.add(this.FAboxVoce.getValue());
+    	List<Fattura> list = model.getFattureRichieste(this.forn, this.cant, this.lav, this.voci, 
+    			this.FAdataDa.getValue(), this.FAdataA.getValue());
+    	
+    	/*
+    	//CONTROLLO FORNITORE
+    	if(this.FAboxForn.getValue()!=null && !this.FAtxtArea.getText().contains(this.FAboxForn.getValue())) {
+    		//CONTROLLO SE E' IL PRIMO FILTRO INSERITO
+	    	if(this.FAboxFatture.getItems().size()<model.getFatture().size()+1)
+	    		list.addAll(this.FAboxFatture.getItems());
+	    	else
+	    		list.add(null);
+	    	//AGGIUNGO FATTURE INTERESSATE
+    		for(Fattura f : model.getFatture())
+    			if(f.getFornitore().equals(this.FAboxForn.getValue()))
+    				list.add(f);
+    		//MEMORIZZO FORNITORI INTERESSATI
+    		for(Fattura f : list)
+    			if(f!=null && !forn.contains(f.getFornitore()))
+    				forn.add(f.getFornitore());
+    		//AGGIORNO BOX FATTURE
+    		this.FAboxFatture.getItems().clear();
+    		this.FAboxFatture.getItems().addAll(list);*/
+    		
+    		
+    		
+    		/* STAMPA
+    		this.FAtxtArea.setText("Elenco fatture di ");
+    		for(String s : forn) {
+    			if(forn.indexOf(s)!=0)
+    				this.FAtxtArea.appendText(", ");
+    			this.FAtxtArea.appendText(s);
+    		}
+    		for(Fattura f : list)
+    			if(f!=null)
+    				this.FAtxtArea.appendText("\n " + f.toString());*/
+    }
+
+    @FXML
+    void FAinserisciImporto(ActionEvent event) {
+
+    }
+
+    @FXML
+    void FAmodNoteFattura(ActionEvent event) {
+
+    }
+
+    @FXML
+    void FAreset(ActionEvent event) {
+
+    }
+
+    @FXML
+    void FAricercaCant2(KeyEvent event) {
+
+    }
+
+    @FXML
+    void FAricercaVoce2(KeyEvent event) {
+
+    }
+
+    @FXML
+    void FArimuovi(ActionEvent event) {
+
+    }
+
+    @FXML
+    void FAsetImporto(ActionEvent event) {
+
+    }
+    
     //INIZIALIZZAZIONE
     //
     //
@@ -569,6 +873,39 @@ public class FXMLController {
         assert IPbtnCanc != null : "fx:id=\"IPbtnCanc\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IPbtnReset != null : "fx:id=\"IPbtnReset\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IPbtnConferma != null : "fx:id=\"IPbtnConferma\" was not injected: check your FXML file 'Scene.fxml'.";
+        //TAB FATTURE
+        assert FAboxForn != null : "fx:id=\"FAboxForn\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAdataDa != null : "fx:id=\"FAdataDa\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAdataA != null : "fx:id=\"FAdataA\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAbtnInserisci != null : "fx:id=\"FAbtnInserisci\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAboxCant != null : "fx:id=\"FAboxCant\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAboxLav != null : "fx:id=\"FAboxLav\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAboxVoce != null : "fx:id=\"FAboxVoce\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAbtnRimuovi != null : "fx:id=\"FAbtnRimuovi\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtRicercaLav != null : "fx:id=\"FAtxtRicercaLav\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtRicercaVoce != null : "fx:id=\"FAtxtRicercaVoce\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtRicercaCant != null : "fx:id=\"FAtxtRicercaCant\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtRicercaForn != null : "fx:id=\"FAtxtRicercaForn\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtArea != null : "fx:id=\"FAtxtArea\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtImportoFattura != null : "fx:id=\"FAtxtImportoFattura\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAboxFatture != null : "fx:id=\"FAboxFatture\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtNoteFattura != null : "fx:id=\"FAtxtNoteFattura\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAbtnCancNoteFattura != null : "fx:id=\"FAbtnCancNoteFattura\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAbtnModNoteFattura != null : "fx:id=\"FAbtnModNoteFattura\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAboxImporti != null : "fx:id=\"FAboxImporti\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAboxCant2 != null : "fx:id=\"FAboxCant2\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtLavorazione != null : "fx:id=\"FAtxtLavorazione\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtRicercaVoce2 != null : "fx:id=\"FAtxtRicercaVoce2\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAboxVoce2 != null : "fx:id=\"FAboxVoce2\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAbtnCanImporto != null : "fx:id=\"FAbtnCanImporto\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtImportNoIva != null : "fx:id=\"FAtxtImportNoIva\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtImportoTot != null : "fx:id=\"FAtxtImportoTot\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAbtnInserisci2 != null : "fx:id=\"FAbtnInserisci2\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtRicercaCant2 != null : "fx:id=\"FAtxtRicercaCant2\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAtxtNoteImporto != null : "fx:id=\"FAtxtNoteImporto\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAbtnCancInserimento != null : "fx:id=\"FAbtnCancInserimento\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAbtnConferma != null : "fx:id=\"FAbtnConferma\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAbtnReset != null : "fx:id=\"FAbtnReset\" was not injected: check your FXML file 'Scene.fxml'.";
     }
     
     public void setModel (Model model) {
@@ -585,10 +922,32 @@ public class FXMLController {
     	this.f = null;
     	this.ll = new ArrayList<>();
     	//TAB INSERISCI PAGAMENTO
+    	this.IPboxIntero.getItems().clear();
     	this.IPboxIntero.getItems().add(null);
     	this.IPboxIntero.getItems().addAll("Interamente pagata", "Acconto", "Saldo");
     	this.IPboxIntero.setValue("Interamente pagata");
     	this.p = null;
+    	//TAB FATTURE
+    	this.FAboxForn.getItems().clear();
+    	this.FAboxForn.getItems().add(null);
+    	this.FAboxForn.getItems().addAll(model.getFornitori());
+    	this.FAboxCant.getItems().clear();
+    	this.FAboxCant.getItems().add(null);
+    	this.FAboxCant.getItems().addAll(model.getCantieri());
+    	this.FAboxLav.getItems().clear();
+    	this.FAboxLav.getItems().add(null);
+    	this.FAboxLav.getItems().addAll(model.getDescrizioniLavorazioni());
+    	this.FAboxVoce.getItems().clear();
+    	this.FAboxVoce.getItems().add(null);
+    	this.FAboxVoce.getItems().addAll(model.getVociCapitolato());
+    	this.FAboxFatture.getItems().clear();
+    	this.FAboxFatture.getItems().add(null);
+    	this.FAboxFatture.getItems().addAll(model.getFatture());
+    	this.forn = new ArrayList<>();
+    	this.cant = new ArrayList<>();
+    	this.lav = new ArrayList<>();
+    	this.voci = new ArrayList<>();
+    	
     }
     
 }
