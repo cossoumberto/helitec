@@ -413,7 +413,7 @@ public class FXMLController {
 
     @FXML
     void IPinserisci(ActionEvent event) { //gestire vincoli date
-    	//Gestione inserimento dati comuni del pagamento
+    	//Gestione inserimento dati comuni pagamento
     	if(this.p==null) {
     		p = new Pagamento();
     		if(this.IPtxtFornitore.getText().trim().length()>0)
