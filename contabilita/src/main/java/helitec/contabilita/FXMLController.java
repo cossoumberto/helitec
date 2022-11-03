@@ -172,7 +172,7 @@ public class FXMLController {
     
     @FXML
     void IFinserisci(ActionEvent event) {
-    	//Gestione inserimento dati comuni della fattura
+    	//Gestione inserimento dati comuni fattura
     	if(f==null || (f!=null && f.getImporti().size()==0)) {
     		f = new Fattura();
     		if(this.IFtxtFornitore.getText().trim().length()!=0)
