@@ -2,6 +2,7 @@ package helitec.contabilita.model;
 
 import java.math.BigDecimal;
 
+
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import helitec.contabilita.dao.HelitecDAO;
+
 
 public class Model {
 	
@@ -66,6 +68,7 @@ public class Model {
 		Collections.sort(list);
 		return list;
 	}
+	
 	
 	public List<Fattura> getFattureFornitoreDaPag(String fornitore) {
 		List<Fattura> l = new ArrayList<>();
@@ -246,11 +249,229 @@ public class Model {
 		return stamp;
 	}
 
+	// da valutare se tenere
 	public List<Fattura> getFattureRichieste(List<String> forn, List<Cantiere> cant, List<String> lav,
-			List<String> voci, LocalDate dataDa, LocalDate dataA) {
-		// TODO Auto-generated method stub
-		return null;
+												List<String> voci, LocalDate dataDa, LocalDate dataA) {
+		List<Fattura> list = new ArrayList<>();
+		List<Fattura> remove = new ArrayList<>();
+		for(Fattura f : fatture) {
+			for(Importo i : f.getImporti()) {
+				if(cant.size()==0 || cant.contains(i.getLavorazione().getCantiere())) {
+					list.add(f);
+					if(lav.size()>0 && !lav.contains(i.getLavorazione().getDescrizione())) 
+						remove.add(f);
+					else if(voci.size()>0 && !voci.contains(i.getLavorazione().getVoceCapitolato()))
+						remove.add(f);
+					else if(forn.size()>0 && !forn.contains(f.getFornitore()))
+						remove.add(f);
+					else if( (dataA!=null && f.getData().isAfter(dataA)) || (dataDa!=null && f.getData().isBefore(dataDa)) )
+						remove.add(f);
+					break;
+				} 
+			}
+		}
+		list.removeAll(remove);
+		Collections.sort(list);
+		return list;
 	}
-
+		
 	
+	public List<Fattura> getFattureRichieste(String forn, Cantiere cant, String lav, String voce,
+			LocalDate dataDa, LocalDate dataA) {
+		List<Fattura> list = new ArrayList<>();
+		List<Fattura> remove = new ArrayList<>();
+		for(Fattura f : fatture)
+			for(Importo i : f.getImporti()) {
+				if(cant==null || cant.equals(i.getLavorazione().getCantiere())) {
+					list.add(f);
+					if(lav!=null && !lav.equals(i.getLavorazione().getDescrizione())) 
+						remove.add(f);
+					else if(voce!=null && !voce.equals(i.getLavorazione().getVoceCapitolato()))
+						remove.add(f);
+					else if(forn!=null && !forn.equals(f.getFornitore()))
+						remove.add(f);
+					else if( (dataA!=null && f.getData().isAfter(dataA)) || (dataDa!=null && f.getData().isBefore(dataDa)) )
+						remove.add(f);
+					break;
+				} 
+			}
+		list.removeAll(remove);
+		Collections.sort(list);
+		System.out.println(fatture.size() + " " + list.size());
+		return list;
+	}
+	
+	public List<String> getFornitoriRichiesti(String s, Cantiere cant, String lav, String voce, LocalDate dataDa, LocalDate dataA) {
+		List<String> list = new ArrayList<>();
+		List<String> remove = new ArrayList<>();
+		for(Fattura f : this.fatture) {
+			for(Importo i : f.getImporti()) {
+				if((s==null || f.getFornitore().contains(s)) && (cant==null || i.getLavorazione().getCantiere().equals(cant)) )
+					if(!list.contains(f.getFornitore())) {
+						list.add(f.getFornitore());
+						if(lav!=null && !lav.equals(i.getLavorazione().getDescrizione()))
+							if(!remove.contains(f.getFornitore()))
+								remove.add(f.getFornitore());
+						else if(voce!=null && !voce.equals(i.getLavorazione().getVoceCapitolato()))
+							if(!remove.contains(f.getFornitore()))
+								remove.add(f.getFornitore());
+						else if( (dataDa!=null && f.getData().isBefore(dataDa)) || 
+								(dataA!=null && f.getData().isAfter(dataA)) )
+							if(!remove.contains(f.getFornitore()))
+								remove.add(f.getFornitore());
+						break;
+					}
+			}
+		}
+		list.removeAll(remove);
+		Collections.sort(list);
+		return list;
+	}
+	
+	public List<Cantiere> getCantieriRichiesti(String s, String forn, String lav, String voce, LocalDate dataDa, LocalDate dataA) {
+		List<Cantiere> list = new ArrayList<>();
+		List<Cantiere> remove = new ArrayList<>();
+		for(Fattura f : this.fatture) {
+			for(Importo i : f.getImporti()) {
+				if( (s==null || i.getLavorazione().getCantiere().toString().contains(s)) && (forn==null || f.getFornitore().equals(forn)))
+					if(!list.contains(i.getLavorazione().getCantiere())) {
+						list.add(i.getLavorazione().getCantiere());
+						if(lav!=null && !lav.equals(i.getLavorazione().getDescrizione()))
+							if(!remove.contains(i.getLavorazione().getCantiere()))
+								remove.add(i.getLavorazione().getCantiere());
+						else if(voce!=null && !voce.equals(i.getLavorazione().getVoceCapitolato()))
+							if(!remove.contains(i.getLavorazione().getCantiere()))
+								remove.add(i.getLavorazione().getCantiere());
+						else if( (dataDa!=null && f.getData().isBefore(dataDa)) || 
+								(dataA!=null && f.getData().isAfter(dataA)) )
+							if(!remove.contains(i.getLavorazione().getCantiere()))
+								remove.add(i.getLavorazione().getCantiere());
+						break;
+					}
+			}
+		}
+		list.removeAll(remove);
+		Collections.sort(list);
+		return list;
+	}
+	
+	public List<String> getLavorazioniRichieste(String s, String forn, Cantiere cant, String voce, LocalDate dataDa, LocalDate dataA) {
+		List<String> list = new ArrayList<>();
+		List<String> remove = new ArrayList<>();
+		for(Fattura f : this.fatture) {
+			for(Importo i : f.getImporti()) {
+				if( (s==null || i.getLavorazione().getDescrizione().contains(s)) && (forn==null ||f.getFornitore().equals(forn)) )
+					if(!list.contains(i.getLavorazione().getDescrizione())) {
+						list.add(i.getLavorazione().getDescrizione());
+						if(cant!=null && !cant.equals(i.getLavorazione().getCantiere()))
+							if(!remove.contains(i.getLavorazione().getDescrizione()))
+								remove.add(i.getLavorazione().getDescrizione());
+						else if(voce!=null && !voce.equals(i.getLavorazione().getVoceCapitolato()))
+							if(!remove.contains(i.getLavorazione().getDescrizione()))
+								remove.add(i.getLavorazione().getDescrizione());
+						else if( (dataDa!=null && f.getData().isBefore(dataDa)) || 
+								(dataA!=null && f.getData().isAfter(dataA)) )
+							if(!remove.contains(i.getLavorazione().getDescrizione()))
+								remove.add(i.getLavorazione().getDescrizione());
+						break;
+					}
+			}
+		}
+		list.removeAll(remove);
+		Collections.sort(list);
+		return list;
+	}
+	
+	public List<String> getVociRichieste(String s, String forn, Cantiere cant, String lav, LocalDate dataDa, LocalDate dataA) {
+		List<String> list = new ArrayList<>();
+		List<String> remove = new ArrayList<>();
+		for(Fattura f : this.fatture) {
+			for(Importo i : f.getImporti()) {
+				if( (s==null || i.getLavorazione().getVoceCapitolato().contains(s)) && (forn==null ||f.getFornitore().equals(forn)) )
+					if(!list.contains(i.getLavorazione().getVoceCapitolato())) {
+						list.add(i.getLavorazione().getVoceCapitolato());
+						if(cant!=null && !cant.equals(i.getLavorazione().getCantiere()))
+							if(!remove.contains(i.getLavorazione().getVoceCapitolato()))
+								remove.add(i.getLavorazione().getVoceCapitolato());
+						else if(lav!=null && !lav.equals(i.getLavorazione().getDescrizione()))
+							if(!remove.contains(i.getLavorazione().getVoceCapitolato()))
+								remove.add(i.getLavorazione().getVoceCapitolato());
+						else if( (dataDa!=null && f.getData().isBefore(dataDa)) || 
+								(dataA!=null && f.getData().isAfter(dataA)) )
+							if(!remove.contains(i.getLavorazione().getVoceCapitolato()))
+								remove.add(i.getLavorazione().getVoceCapitolato());
+						break;
+					}
+			}
+		}
+		list.removeAll(remove);
+		Collections.sort(list);
+		return list;
+	}
+	
+	public List<String> getFornitoriFatture(List<Fattura> list){
+		List<String> forn = new ArrayList<>();
+		for(Fattura f : list)
+			if(!forn.contains(f.getFornitore()))
+				forn.add(f.getFornitore());
+		Collections.sort(forn);
+		return forn;
+	}
+	
+	public List<Cantiere> getCantieriFatture(List<Fattura> list){
+		List<Cantiere> cant = new ArrayList<>();
+		for(Fattura f : list)
+			for(Importo i : f.getImporti())
+				if(!cant.contains(i.getLavorazione().getCantiere()))
+					cant.add(i.getLavorazione().getCantiere());
+		if(cant.contains(null))
+			cant.remove(null);
+		Collections.sort(cant);
+		cant.add(0, null);
+		return cant;
+	}
+	
+	public List<String> getDescrLavorazioniFatture(List<Fattura> list){
+		List<String> lav = new ArrayList<>();
+		for(Fattura f : list)
+			for(Importo i : f.getImporti())
+				if(!lav.contains(i.getLavorazione().getDescrizione()))
+					lav.add(i.getLavorazione().getDescrizione());
+		if(lav.contains(null))
+			lav.remove(null);
+		Collections.sort(lav);
+		lav.add(0, null);
+		return lav;
+	}
+	
+	public List<String> getVociFatture(List<Fattura> list){
+		List<String> voci = new ArrayList<>();
+		for(Fattura f : list)
+			for(Importo i : f.getImporti())
+				if(!voci.contains(i.getLavorazione().getVoceCapitolato()))
+					voci.add(i.getLavorazione().getVoceCapitolato());
+		if(voci.contains(null))
+			voci.remove(null);
+		Collections.sort(voci);
+		voci.add(0, null);
+		return voci;
+	}
+	
+	public LocalDate getDataMinFatture (List<Fattura> list) {
+		LocalDate ld = null;
+		for(Fattura f : list)
+			if(ld==null || f.getData().isBefore(ld))
+				ld = f.getData();
+		return ld;
+	}
+	
+	public LocalDate getDataMaxFatture (List<Fattura> list) {
+		LocalDate ld = null;
+		for(Fattura f : list)
+			if(ld==null || f.getData().isAfter(ld))
+				ld = f.getData();
+		return ld;
+	}
+	
+
 }
