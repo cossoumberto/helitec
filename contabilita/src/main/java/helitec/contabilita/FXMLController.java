@@ -1015,7 +1015,10 @@ public class FXMLController {
 	    	//	//Box fornitori
 	    	this.FAboxForn.getItems().clear();
 	    	this.FAboxForn.getItems().add(null);
-	    	if(this.inputList.get(this.inputList.size()-1)==1) {
+	    	System.out.println(this.inputList);
+	    	if(this.inputList.size()==0 || this.inputList.get(this.inputList.size()-1)!=1) 
+	    		this.FAboxForn.getItems().addAll(model.getFornitoriFatture(fatture));
+	    	else if(this.inputList.get(this.inputList.size()-1)==1){
 	    		List<String> tempForn = new ArrayList<>(forn);
 	    		Integer remove = 0;
 	    		for(int i=this.inputList.size()-1; i>=0 && this.inputList.get(i)==1; i--)
@@ -1027,11 +1030,12 @@ public class FXMLController {
 	    		List<Fattura> tempFatt = model.getFattureRichieste(tempForn, this.cant, this.lav, this.voci, 
 	    				this.FAdataDa.getValue(), this.FAdataA.getValue());
 	    		this.FAboxForn.getItems().addAll(model.getFornitoriFatture(tempFatt));
-	    	} else
-	    		this.FAboxForn.getItems().addAll(model.getFornitoriFatture(fatture));
+	    	}	
 	    	//	//Box cantieri
 			this.FAboxCant.getItems().clear();
-			if(this.inputList.get(this.inputList.size()-1)==2) {
+			if(this.inputList.size()==0 || this.inputList.get(this.inputList.size()-1)!=2)
+				this.FAboxCant.getItems().addAll(model.getCantieriFatture(fatture));
+			else if(this.inputList.get(this.inputList.size()-1)==2) {
 	    		List<Cantiere> tempCant = new ArrayList<>(cant);
 	    		Integer remove = 0;
 	    		for(int i=this.inputList.size()-1; i>=0 && this.inputList.get(i)==2; i--)
@@ -1043,11 +1047,12 @@ public class FXMLController {
 	    		List<Fattura> tempFatt = model.getFattureRichieste(this.forn, tempCant, this.lav, this.voci, 
 	    				this.FAdataDa.getValue(), this.FAdataA.getValue());
 	    		this.FAboxCant.getItems().addAll(model.getCantieriFatture(tempFatt));
-	    	} else
-	    		this.FAboxCant.getItems().addAll(model.getCantieriFatture(fatture));
+	    	} 
 			//	//Box lavorazioni
 			this.FAboxLav.getItems().clear();
-			if(this.inputList.get(this.inputList.size()-1)==3) {
+			if(this.inputList.size()==0 || this.inputList.get(this.inputList.size()-1)!=3) 
+				this.FAboxLav.getItems().addAll(model.getDescrLavorazioniFatture(fatture));
+			else if (this.inputList.get(this.inputList.size()-1)==3){
 	    		List<String> tempLav = new ArrayList<>(lav);
 	    		Integer remove = 0;
 	    		for(int i=this.inputList.size()-1; i>=0 && this.inputList.get(i)==3; i--)
@@ -1059,11 +1064,12 @@ public class FXMLController {
 	    		List<Fattura> tempFatt = model.getFattureRichieste(this.forn, this.cant, tempLav, this.voci, 
 	    				this.FAdataDa.getValue(), this.FAdataA.getValue());
 	    		this.FAboxLav.getItems().addAll(model.getDescrLavorazioniFatture(tempFatt));
-	    	} else
-	    		this.FAboxLav.getItems().addAll(model.getDescrLavorazioniFatture(fatture));
+	    	}
 			//	//Box voci
 			this.FAboxVoce.getItems().clear();
-			if(this.inputList.get(this.inputList.size()-1)==4) {
+			if(this.inputList.size()==0 || this.inputList.get(this.inputList.size()-1)!=4)
+				this.FAboxVoce.getItems().addAll(model.getVociFatture(fatture));
+			else if(this.inputList.get(this.inputList.size()-1)==4) {
 	    		List<String> tempVoci= new ArrayList<>(voci);
 	    		Integer remove = 0;
 	    		for(int i=this.inputList.size()-1; i>=0 && this.inputList.get(i)==4; i--)
@@ -1075,8 +1081,7 @@ public class FXMLController {
 	    		List<Fattura> tempFatt = model.getFattureRichieste(this.forn, this.cant, this.lav, tempVoci, 
 	    				this.FAdataDa.getValue(), this.FAdataA.getValue());
 	    		this.FAboxVoce.getItems().addAll(model.getVociFatture(tempFatt));
-	    	} else
-	    		this.FAboxVoce.getItems().addAll(model.getVociFatture(fatture));
+	    	}
 			//	//Date
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 			this.FAdataDa.setPromptText(model.getDataMinFatture(fatture).format(formatter));
