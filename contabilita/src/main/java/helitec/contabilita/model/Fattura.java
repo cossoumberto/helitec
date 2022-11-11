@@ -207,7 +207,30 @@ public class Fattura implements Comparable<Fattura>{
 		this.importoTot= y.doubleValue();
 		this.importi.remove(importi.size()-1);
 	}
-
+	
+	public List<Cantiere> getCantieriFattura() {
+		List<Cantiere> list = new ArrayList<>();
+		for(Importo i : this.importi)
+			if(!list.contains(i.getLavorazione().getCantiere()))
+				list.add(i.getLavorazione().getCantiere());
+		return list;
+	}
+	
+	public List<String> getDescrLavorazioniFattura() {
+		List<String> list = new ArrayList<>();
+		for(Importo i : this.importi)
+			if(!list.contains(i.getLavorazione().getDescrizione()))
+				list.add(i.getLavorazione().getDescrizione());
+		return list;
+	}
+	
+	public List<String> getVociCapitolatoFattura() {
+		List<String> list = new ArrayList<>();
+		for(Importo i : this.importi)
+			if(!list.contains(i.getLavorazione().getVoceCapitolato()))
+				list.add(i.getLavorazione().getVoceCapitolato());
+		return list;
+	}
 
 	public String toStringConImporti() {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
