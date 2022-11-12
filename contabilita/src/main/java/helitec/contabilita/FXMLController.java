@@ -170,6 +170,8 @@ public class FXMLController {
     		this.IFdata.setDisable(false);
     		this.IFboxIVA.setDisable(false);
     		this.IFbtnCancArea.setDisable(false);
+    		//Aggiornamento dati input altre sezioni
+    		this.FAresetDatiInput();
     	} else if(f!=null && f.getImporti().size()==0)
     		this.IFtxtArea.setText(f.toStringConImporti() + "\n\nInserire importi");
     	else
@@ -668,6 +670,7 @@ public class FXMLController {
     void FAannulla(ActionEvent event) {
     	if(this.FAboxFatture.getValue()!=null && this.FAtxtArea.getText().equals(this.FAboxFatture.getValue().toStringConImporti())) {
     		this.stampaOutputRicerca(this.FAboxFatture.getItems());
+    		this.FAboxFatture.setValue(null);
     		this.FAtxtImportoFattura.clear();
     		this.FAtxtNoteFattura.clear();
     	}
@@ -826,29 +829,7 @@ public class FXMLController {
     
     @FXML
     void FAresetFiltri(ActionEvent event) {
-    	this.FAboxForn.getItems().clear();
-    	this.FAboxForn.getItems().add(null);
-    	this.FAboxForn.getItems().addAll(model.getFornitori());
-    	this.FAboxCant.getItems().clear();
-    	this.FAboxCant.getItems().add(null);
-    	this.FAboxCant.getItems().addAll(model.getCantieri());
-    	this.FAboxLav.getItems().clear();
-    	this.FAboxLav.getItems().add(null);
-    	this.FAboxLav.getItems().addAll(model.getDescrizioniLavorazioni());
-    	this.FAboxVoce.getItems().clear();
-    	this.FAboxVoce.getItems().add(null);
-    	this.FAboxVoce.getItems().addAll(model.getVociCapitolatoAttive());
-    	this.forn = new ArrayList<>();
-    	this.cant = new ArrayList<>();
-    	this.lav = new ArrayList<>();
-    	this.voci = new ArrayList<>();
-    	this.max = null;
-    	this.min = null;
-    	this.inputList = new TreeMap<>();
-    	this.FAdataDa.setValue(null);
-    	this.FAdataA.setValue(null);
-    	this.FAdataDa.setPromptText("Da");
-    	this.FAdataA.setPromptText("A");
+    	this.FAresetDatiInput();
     }
 
     @FXML
@@ -1024,6 +1005,32 @@ public class FXMLController {
 
     }
     
+    private void FAresetDatiInput() {
+    	this.FAboxForn.getItems().clear();
+    	this.FAboxForn.getItems().add(null);
+    	this.FAboxForn.getItems().addAll(model.getFornitori());
+    	this.FAboxCant.getItems().clear();
+    	this.FAboxCant.getItems().add(null);
+    	this.FAboxCant.getItems().addAll(model.getCantieri());
+    	this.FAboxLav.getItems().clear();
+    	this.FAboxLav.getItems().add(null);
+    	this.FAboxLav.getItems().addAll(model.getDescrizioniLavorazioni());
+    	this.FAboxVoce.getItems().clear();
+    	this.FAboxVoce.getItems().add(null);
+    	this.FAboxVoce.getItems().addAll(model.getVociCapitolatoAttive());
+    	this.forn = new ArrayList<>();
+    	this.cant = new ArrayList<>();
+    	this.lav = new ArrayList<>();
+    	this.voci = new ArrayList<>();
+    	this.max = null;
+    	this.min = null;
+    	this.inputList = new TreeMap<>();
+    	this.FAdataDa.setValue(null);
+    	this.FAdataA.setValue(null);
+    	this.FAdataDa.setPromptText("Da");
+    	this.FAdataA.setPromptText("A");
+    }
+    
     private void rimuoviInputExtraAggiornaBox (List<Fattura> list) {
     	//Rimuovo da liste parametri input i parametri non influenti
     	//	//rimuovo fornitori di troppo
@@ -1053,11 +1060,11 @@ public class FXMLController {
     	//	//rimuovo cantieri di troppo
     	List<Cantiere> tempC = new ArrayList<>(cant);
     	Collections.sort(tempC);
-    	if(!tempC.equals(model.getCantieriFatture(list))) {
+    	if(!tempC.equals(model.getCantieriFatture(list, lav, voci))) {
 	    	List<Cantiere> newCant = new ArrayList<>();
 	    	Map<Integer, Cantiere> m = new TreeMap<>();
 	    	for(Cantiere c : cant)
-	    		if(model.getCantieriFatture(list).contains(c))
+	    		if(model.getCantieriFatture(list, lav, voci).contains(c))
 	    			newCant.add(c);
 	    		else
 	    			m.put(cant.indexOf(c), c);
@@ -1077,11 +1084,11 @@ public class FXMLController {
     	//	//rimuovo lav di troppo
     	List<String> tempL = new ArrayList<>(lav);
     	Collections.sort(tempL);
-    	if(!tempL.equals(model.getDescrLavorazioniFatture(list))) {
+    	if(!tempL.equals(model.getDescrLavorazioniFatture(list, cant, voci))) {
     		List<String> newLav = new ArrayList<>();
 	    	Map<Integer, String> m = new TreeMap<>();
 	    	for(String s : lav)
-	    		if(model.getDescrLavorazioniFatture(list).contains(s))
+	    		if(model.getDescrLavorazioniFatture(list, cant, voci).contains(s))
 	    			newLav.add(s);
 	    		else
 	    			m.put(lav.indexOf(s), s);
@@ -1101,11 +1108,11 @@ public class FXMLController {
     	//	//rimuovo voci di troppo
     	List<String> tempV = new ArrayList<>(voci);
     	Collections.sort(tempV);
-    	if(!tempV.equals(model.getVociFatture(list))) {
+    	if(!tempV.equals(model.getVociFatture(list, cant, lav))) {
     		List<String> newVoci = new ArrayList<>();
 	    	Map<Integer, String> m = new TreeMap<>();
 	    	for(String s : voci)
-	    		if(model.getVociFatture(list).contains(s))
+	    		if(model.getVociFatture(list, cant, lav).contains(s))
 	    			newVoci.add(s);
 	    		else
 	    			m.put(voci.indexOf(s), s);
@@ -1152,8 +1159,8 @@ public class FXMLController {
     	//	//Box cantieri
     	this.FAboxCant.getItems().clear();
     	if(this.inputList.size()==0 || !this.inputList.get(this.inputList.size()-1).equals(InputType.Cantiere))
-			this.FAboxCant.getItems().addAll(model.getCantieriFatture(list));
-		else if(this.inputList.get(this.inputList.size()-1).equals(InputType.Cantiere)) {
+    		this.FAboxCant.getItems().addAll(model.getCantieriFatture(list, lav, voci));
+    	else if(this.inputList.get(this.inputList.size()-1).equals(InputType.Cantiere)) {
     		List<Cantiere> tempCant = new ArrayList<>(cant);
     		Map<Integer, InputType> tempInput = new TreeMap<>(inputList);
     		Integer remove = 0;
@@ -1168,14 +1175,15 @@ public class FXMLController {
     		tempInput = this.ricalcolaInputIndex(tempInput);
     		List<Fattura> tempFatt = model.getFattureRichieste(this.forn, tempCant, this.lav, this.voci, 
     				this.FAdataDa.getValue(), this.FAdataA.getValue(), tempInput);
-    		this.FAboxCant.getItems().addAll(model.getCantieriFatture(tempFatt));
+    		this.FAboxCant.getItems().addAll(model.getCantieriFatture(tempFatt, lav, voci));
     	}
     	this.FAboxCant.setDisable(false);
     	//	//Box lavorazioni
     	this.FAboxLav.getItems().clear();
-    	if(this.inputList.size()==0 || !this.inputList.get(this.inputList.size()-1).equals(InputType.Lavorazione)) 
-			this.FAboxLav.getItems().addAll(model.getDescrLavorazioniFatture(list));
-		else if(this.inputList.get(this.inputList.size()-1).equals(InputType.Lavorazione)) {
+    	if(this.inputList.size()==0 || !this.inputList.get(this.inputList.size()-1).equals(InputType.Lavorazione)) {
+			this.FAboxLav.getItems().addAll(model.getDescrLavorazioniFatture(list, cant, voci));
+    	}
+    	else if(this.inputList.get(this.inputList.size()-1).equals(InputType.Lavorazione)) {
 			List<String> tempLav = new ArrayList<>(lav);
     		Map<Integer, InputType> tempInput = new TreeMap<>(inputList);
     		Integer remove = 0;
@@ -1190,13 +1198,13 @@ public class FXMLController {
     		tempInput = this.ricalcolaInputIndex(tempInput);
     		List<Fattura> tempFatt = model.getFattureRichieste(this.forn, this.cant, tempLav, this.voci, 
     				this.FAdataDa.getValue(), this.FAdataA.getValue(), tempInput);
-    		this.FAboxLav.getItems().addAll(model.getDescrLavorazioniFatture(tempFatt));
+    		this.FAboxLav.getItems().addAll(model.getDescrLavorazioniFatture(tempFatt, cant, voci));
     	} 
     	this.FAboxLav.setDisable(false);
     	//	//Box voce
     	this.FAboxVoce.getItems().clear();
     	if(this.inputList.size()==0 || !this.inputList.get(this.inputList.size()-1).equals(InputType.VoceCap))
-			this.FAboxVoce.getItems().addAll(model.getVociFatture(list));
+			this.FAboxVoce.getItems().addAll(model.getVociFatture(list, cant, lav));
 		else if(this.inputList.get(this.inputList.size()-1).equals(InputType.VoceCap)) {
     		List<String> tempVoci = new ArrayList<>(lav);
     		Map<Integer, InputType> tempInput = new TreeMap<>(inputList);
@@ -1212,7 +1220,7 @@ public class FXMLController {
     		tempInput = this.ricalcolaInputIndex(tempInput);
     		List<Fattura> tempFatt = model.getFattureRichieste(this.forn, this.cant, this.lav, tempVoci, 
     				this.FAdataDa.getValue(), this.FAdataA.getValue(), tempInput);
-    		this.FAboxVoce.getItems().addAll(model.getVociFatture(tempFatt));
+    		this.FAboxVoce.getItems().addAll(model.getVociFatture(tempFatt, cant, lav));
     	}
     	this.FAboxVoce.setDisable(false);
     	//	//Date
@@ -1391,7 +1399,7 @@ public class FXMLController {
     	this.FAboxForn.getItems().addAll(model.getFornitori());
     	this.FAboxCant.getItems().clear();
     	this.FAboxCant.getItems().add(null);
-    	this.FAboxCant.getItems().addAll(model.getCantieri());
+    	this.FAboxCant.getItems().addAll(model.getCantieriAttivi());
     	this.FAboxLav.getItems().clear();
     	this.FAboxLav.getItems().add(null);
     	this.FAboxLav.getItems().addAll(model.getDescrizioniLavorazioni());
