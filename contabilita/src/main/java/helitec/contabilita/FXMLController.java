@@ -52,8 +52,11 @@ public class FXMLController {
     @FXML // URL location of the FXML file that was given to the FXMLLoader
     private URL location;
 
-    @FXML // fx:id="IFtxtFornitore"
+    @FXML // fx:id="IFtxtRicercaFornitore"
     private TextField IFtxtFornitore; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IFboxFornitori"
+    private ComboBox<String> IFboxFornitori; // Value injected by FXMLLoader
 
     @FXML // fx:id="IFtxtNum"
     private TextField IFtxtNum; // Value injected by FXMLLoader
@@ -63,16 +66,19 @@ public class FXMLController {
 
     @FXML // fx:id="IFboxIVA"
     private ComboBox<Integer> IFboxIVA; // Value injected by FXMLLoader
-    
+
     @FXML // fx:id="IFtxtRicercaCantiere"
     private TextField IFtxtRicercaCantiere; // Value injected by FXMLLoader
 
     @FXML // fx:id="IFboxCantieri"
     private ComboBox<Cantiere> IFboxCantieri; // Value injected by FXMLLoader
 
-    @FXML // fx:id="IFtxtLavorazione"
+    @FXML // fx:id="IFtxtRicercaLavorazione"
     private TextField IFtxtLavorazione; // Value injected by FXMLLoader
-    
+
+    @FXML // fx:id="IFboxLavorazioni"
+    private ComboBox<String> IFboxLavorazioni; // Value injected by FXMLLoader
+
     @FXML // fx:id="IFtxtRicercaVoce"
     private TextField IFtxtRicercaVoce; // Value injected by FXMLLoader
 
@@ -84,21 +90,21 @@ public class FXMLController {
 
     @FXML // fx:id="IFtxtImportoTot"
     private TextField IFtxtImportoTot; // Value injected by FXMLLoader
-    
-    @FXML // fx:id="IFtxtImportoTotFattura"
-    private TextField IFtxtImportoTotFattura; // Value injected by FXMLLoader
-    
+
     @FXML // fx:id="IFbtnIns"
     private Button IFbtnIns; // Value injected by FXMLLoader
-    
+
     @FXML // fx:id="IFtxtNoteImporto"
     private TextField IFtxtNoteImporto; // Value injected by FXMLLoader
 
     @FXML // fx:id="IFtxtArea"
     private TextArea IFtxtArea; // Value injected by FXMLLoader
-    
+
     @FXML // fx:id="IFtxtNoteFattura"
     private TextField IFtxtNoteFattura; // Value injected by FXMLLoader
+
+    @FXML // fx:id="IFtxtImportoTotFattura"
+    private TextField IFtxtImportoTotFattura; // Value injected by FXMLLoader
 
     @FXML // fx:id="IFbtnCanc"
     private Button IFbtnCanc; // Value injected by FXMLLoader
@@ -108,7 +114,7 @@ public class FXMLController {
 
     @FXML // fx:id="IFbtnConfema"
     private Button IFbtnConfema; // Value injected by FXMLLoader
-    
+
     @FXML // fx:id="IFbtnCancArea"
     private Button IFbtnCancArea; // Value injected by FXMLLoader
 
@@ -166,6 +172,7 @@ public class FXMLController {
     		this.f = null;
     		this.ll = new ArrayList<>();
     		this.IFtxtFornitore.setEditable(true);
+    		this.IFboxFornitori.setDisable(false);
     		this.IFtxtNum.setEditable(true);
     		this.IFdata.setDisable(false);
     		this.IFboxIVA.setDisable(false);
@@ -183,9 +190,16 @@ public class FXMLController {
     	//Gestione inserimento dati comuni fattura
     	if(f==null || (f!=null && f.getImporti().size()==0)) {
     		f = new Fattura();
-    		if(this.IFtxtFornitore.getText().trim().length()!=0)
+    		if(this.IFboxFornitori.getValue()!=null)
+    			this.f.setFornitore(this.IFboxFornitori.getValue());
+    		else if(this.IFtxtFornitore.getText().trim().length()>0 && this.IFtxtFornitore.getText().trim().length()<=50) {
+    			if(this.IFboxFornitori.getItems().contains(this.IFtxtFornitore.getText().trim().toUpperCase())) {
+    				this.IFtxtArea.setText("Selezionare fornitore esistente");
+    				return;
+    			} else 
     				this.f.setFornitore(this.IFtxtFornitore.getText().trim().toUpperCase());
-    		if(this.IFtxtNum.getText().trim().length()!=0)
+    		}
+    		if(this.IFtxtNum.getText().trim().length()>0 && this.IFtxtNum.getText().trim().length()<=50)
     			this.f.setNumero(this.IFtxtNum.getText().trim().toUpperCase());
     		this.f.setData(this.IFdata.getValue());
     		if(model.verificaIdFattura(f)==true) {
@@ -228,12 +242,27 @@ public class FXMLController {
     	
     	//Gestione inserimento lavorazione
     	Lavorazione l = null;
-    	if(this.IFboxCantieri.getValue()!=null || this.IFtxtLavorazione.getText().trim().length()!=0) {
+    	if(this.IFtxtLavorazione.getText().trim().length()>0 && this.IFtxtLavorazione.getText().trim().length()<=100) {
     		l = new Lavorazione();
     		if(this.IFboxCantieri.getValue()!=null) 
     			l.setCantiere(this.IFboxCantieri.getValue());
-    		if(this.IFtxtLavorazione.getText().trim().length()!=0)
+    		if(this.IFboxLavorazioni.getValue()!=null)
+    			l.setDescrizione(this.IFboxLavorazioni.getValue());
+    		else {
+    			if(this.IFtxtLavorazione.getText().trim().length()>0 && this.IFtxtLavorazione.getText().trim().length()<=100 &&
+    					!this.IFboxLavorazioni.getItems().contains(this.IFtxtLavorazione.getText().trim().toUpperCase()))
     			l.setDescrizione(this.IFtxtLavorazione.getText().trim().toUpperCase());
+    			else if(this.IFtxtLavorazione.getText().trim().length()==0) {
+    	    		this.IFtxtArea.appendText("\n\nInserire lavorazione");
+    				return;
+    			} else if (this.IFtxtLavorazione.getText().trim().length()>100) {
+    				this.IFtxtArea.appendText("\n\nInserire descrizine lavorazione di max 100 caratteri");
+    				return;
+    			} else if(this.IFboxLavorazioni.getItems().contains(this.IFtxtLavorazione.getText().trim().toUpperCase())){
+    				this.IFtxtArea.appendText("\n\nSelezionare lavorazione tra quelle esistenti");
+    				return;
+    			}
+    		}
     		if(this.IFboxVoci.getValue()!=null)
     			l.setVoceCapitolato(this.IFboxVoci.getValue());
     		if(!ll.contains(l))
@@ -258,6 +287,7 @@ public class FXMLController {
     	this.IFtxtArea.appendText("");
     	this.IFtxtImportoTotFattura.setText(this.f.getImportoTot().toString());
     	this.IFtxtFornitore.setEditable(false);
+    	this.IFboxFornitori.setDisable(true);
     	this.IFtxtNum.setEditable(false);
     	this.IFdata.setDisable(true);
     	this.IFboxIVA.setDisable(true);
@@ -283,18 +313,24 @@ public class FXMLController {
     	this.f = null;
     	this.ll = new ArrayList<>();
     	this.IFtxtFornitore.clear();
+    	this.IFboxFornitori.getItems().clear();
+    	this.IFboxFornitori.getItems().addAll(model.getFornitori());
+    	this.IFboxFornitori.setDisable(false);
     	this.IFtxtFornitore.setEditable(true);
     	this.IFtxtNum.clear();
     	this.IFtxtNum.setEditable(true);
     	this.IFdata.setValue(null);
-    	this.IFdata.setEditable(true);
+    	this.IFdata.setDisable(false);
     	this.IFboxIVA.setValue(null);
     	this.IFboxIVA.setDisable(false);
     	this.IFtxtRicercaCantiere.clear();
     	this.IFboxCantieri.setValue(null);
     	this.IFtxtLavorazione.clear();
+    	this.IFboxLavorazioni.getItems().clear();
+    	this.IFboxLavorazioni.getItems().addAll(model.getDescrizioniLavorazioni());
     	this.IFtxtRicercaVoce.clear();
-    	this.IFboxVoci.setValue(null);
+    	this.IFboxVoci.getItems().clear();
+    	this.IFboxVoci.getItems().addAll(model.getVociCapitolato());
     	this.IFtxtImportoNoIva.clear();
     	this.IFtxtImportoTot.clear();
     	this.IFtxtNoteImporto.clear();
@@ -323,11 +359,39 @@ public class FXMLController {
     }
     
     @FXML
-    void IFricercaForn(KeyEvent event) {
-    	if(this.IFtxtFornitore.getText().trim().length()>0 && !model.getFornitori().contains(this.IFtxtFornitore.getText().trim().toUpperCase()))
-			this.IFtxtArea.setText("Fornitore inserito non esistente");
-    	else 
-    		this.IFtxtArea.clear();
+    void IFricercaFornitore(KeyEvent event) {
+    	if(this.IFtxtFornitore.getText().trim().length()>0) {
+	    	String ins = this.IFtxtFornitore.getText().trim().toUpperCase();
+	    	List<String> list = new ArrayList<>();
+	    	for(String s : model.getFornitori())
+	    		if(s.contains(ins))
+	    			list.add(s);
+	    	this.IFboxFornitori.getItems().clear();
+	    	this.IFboxFornitori.getItems().add(null);
+	    	this.IFboxFornitori.getItems().addAll(list);
+    	} else {
+    		this.IFboxFornitori.getItems().clear();
+	    	this.IFboxFornitori.getItems().add(null);
+	    	this.IFboxFornitori.getItems().addAll(model.getFornitori());
+    	}
+    }
+
+    @FXML
+    void IFricercaLavorazione(KeyEvent event) {
+    	if(this.IFtxtLavorazione.getText().trim().length()>0) {
+	    	String ins = this.IFtxtLavorazione.getText().trim().toUpperCase();
+	    	List<String> list = new ArrayList<>();
+	    	for(String s : model.getDescrizioniLavorazioni())
+	    		if(s.contains(ins))
+	    			list.add(s);
+	    	this.IFboxLavorazioni.getItems().clear();
+	    	this.IFboxLavorazioni.getItems().add(null);
+	    	this.IFboxLavorazioni.getItems().addAll(list);
+    	} else {
+    		this.IFboxLavorazioni.getItems().clear();
+	    	this.IFboxLavorazioni.getItems().add(null);
+	    	this.IFboxLavorazioni.getItems().addAll(model.getDescrizioniLavorazioni());
+    	}
     }
     
     @FXML
@@ -1412,26 +1476,28 @@ public class FXMLController {
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
     	//TAB INSERISCI FATTURA
-        assert IFtxtFornitore != null : "fx:id=\"IFtxtFornitore\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFtxtNum != null : "fx:id=\"IFtxtNum\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFdata != null : "fx:id=\"IFdata\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFboxIVA != null : "fx:id=\"IFboxIVA\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFtxtRicercaCantiere != null : "fx:id=\"IFtxtRicercaCantiere\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFboxCantieri != null : "fx:id=\"IFboxCantieri\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFtxtLavorazione != null : "fx:id=\"IFtxtLavorazione\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFtxtRicercaVoce != null : "fx:id=\"IFtxtRicercaVoce\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFboxVoci != null : "fx:id=\"IFboxVoci\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFtxtImportoNoIva != null : "fx:id=\"IFtxtImportoNoIva\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFtxtImportoTot != null : "fx:id=\"IFtxtImportoTot\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFtxtImportoTotFattura != null : "fx:id=\"IFtxtImportoTotFattura\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFbtnIns != null : "fx:id=\"IFbtnIns\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFtxtNoteImporto != null : "fx:id=\"IFtxtNoteImporto\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFtxtArea != null : "fx:id=\"IFtxtArea\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFtxtNoteFattura != null : "fx:id=\"IFtxtNoteFattura\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFbtnCanc != null : "fx:id=\"IFbtnCanc\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFbtnReset != null : "fx:id=\"IFbtnReset\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFbtnConfema != null : "fx:id=\"IFbtnConfema\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert IFbtnCancArea != null : "fx:id=\"IFbtnCancArea\" was not injected: check your FXML file 'Scene.fxml'.";
+    	 assert IFtxtFornitore != null : "fx:id=\"IFtxtRicercaFornitore\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFboxFornitori != null : "fx:id=\"IFboxFornitori\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFtxtNum != null : "fx:id=\"IFtxtNum\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFdata != null : "fx:id=\"IFdata\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFboxIVA != null : "fx:id=\"IFboxIVA\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFtxtRicercaCantiere != null : "fx:id=\"IFtxtRicercaCantiere\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFboxCantieri != null : "fx:id=\"IFboxCantieri\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFtxtLavorazione != null : "fx:id=\"IFtxtRicercaLavorazione\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFboxLavorazioni != null : "fx:id=\"IFboxLavorazioni\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFtxtRicercaVoce != null : "fx:id=\"IFtxtRicercaVoce\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFboxVoci != null : "fx:id=\"IFboxVoci\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFtxtImportoNoIva != null : "fx:id=\"IFtxtImportoNoIva\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFtxtImportoTot != null : "fx:id=\"IFtxtImportoTot\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFbtnIns != null : "fx:id=\"IFbtnIns\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFtxtNoteImporto != null : "fx:id=\"IFtxtNoteImporto\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFtxtArea != null : "fx:id=\"IFtxtArea\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFtxtNoteFattura != null : "fx:id=\"IFtxtNoteFattura\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFtxtImportoTotFattura != null : "fx:id=\"IFtxtImportoTotFattura\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFbtnCanc != null : "fx:id=\"IFbtnCanc\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFbtnReset != null : "fx:id=\"IFbtnReset\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFbtnConfema != null : "fx:id=\"IFbtnConfema\" was not injected: check your FXML file 'Scene.fxml'.";
+         assert IFbtnCancArea != null : "fx:id=\"IFbtnCancArea\" was not injected: check your FXML file 'Scene.fxml'.";
         //TAB INSERISCI PAGAMENTO
         assert IPtxtFornitore != null : "fx:id=\"IPtxtFornitore\" was not injected: check your FXML file 'Scene.fxml'.";
         assert IPdata != null : "fx:id=\"IPdata\" was not injected: check your FXML file 'Scene.fxml'.";
@@ -1486,11 +1552,15 @@ public class FXMLController {
     public void setModel (Model model) {
     	this.model = model;
     	//TAB INSERISCI FATTURA
+    	this.IFboxFornitori.getItems().clear();
+    	this.IFboxFornitori.getItems().addAll(model.getFornitori());
     	this.IFboxIVA.getItems().clear();
     	this.IFboxIVA.getItems().addAll(0, 4, 10, 22);
     	this.IFboxCantieri.getItems().clear();
     	this.IFboxCantieri.getItems().add(null);
     	this.IFboxCantieri.getItems().addAll(model.getCantieri());
+    	this.IFboxLavorazioni.getItems().clear();
+    	this.IFboxLavorazioni.getItems().addAll(model.getDescrizioniLavorazioni());
     	this.IFboxVoci.getItems().clear();
     	this.IFboxVoci.getItems().add(null);
     	this.IFboxVoci.getItems().addAll(model.getVociCapitolato());
