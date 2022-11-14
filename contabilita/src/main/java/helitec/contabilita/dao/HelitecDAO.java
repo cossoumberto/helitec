@@ -74,8 +74,9 @@ public class HelitecDAO {
 			while (res.next()) {
 				Cantiere cantiere = null;
 				for(Cantiere c : cantieri)
-					if(c.getNumero().equals(res.getInt("cantiere")))
-						cantiere = c;
+					if(res.getString("cantiere")!=null)
+						if(c.getNumero().equals(res.getInt("cantiere")))
+							cantiere = c;
 				VoceCapitolatoCantiere voceCapitolatoCantiere = null;
 				for(VoceCapitolatoCantiere vcc : vociCapitolatoCantieri)
 					if(vcc.getCantiere().equals(cantiere) && vcc.getVoceCapitolato().equals(res.getString("voce_capitolato")))
@@ -196,9 +197,13 @@ public class HelitecDAO {
 				else fattura = null;
 				Lavorazione lavorazione = new Lavorazione();
 				lavorazione.setDescrizione(res.getString("descrizione"));
-				for(Lavorazione l : lavorazioni)
-					if(l.getCantiere().getNumero().equals(res.getInt("cantiere")))
-							lavorazione.setCantiere(l.getCantiere());
+				for(Lavorazione l : lavorazioni) {
+					if(l.getCantiere()!=null && res.getString("cantiere")!=null &&
+							l.getCantiere().getNumero().equals(res.getInt("cantiere")))
+						lavorazione.setCantiere(l.getCantiere());
+					else if(l.getCantiere()==null && res.getString("cantiere")==null)
+						lavorazione.setCantiere(null);
+				}
 				if(lavorazioni.contains(lavorazione))
 					lavorazione = lavorazioni.get(lavorazioni.indexOf(lavorazione));
 				else lavorazione = null;

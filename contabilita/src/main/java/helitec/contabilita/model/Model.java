@@ -63,28 +63,50 @@ public class Model {
 	
 	public List<Cantiere> getCantieriAttivi(){
 		List<Cantiere> list = new ArrayList<>();
-		for(Lavorazione l : this.lavorazioni)
-			if(l.getCantiere()!=null && !list.contains(l.getCantiere()))
+		for(Lavorazione l : this.lavorazioni) {
+			if(!list.contains(l.getCantiere()))
 				list.add(l.getCantiere());
+		}
+		boolean b = false;
+		if(list.contains(null)) {
+			list.remove(null);
+			b = true;
+		}
 		Collections.sort(list);
+		if(b==true)
+			list.add(0, null);
 		return list;
 	}
 	
 	public List<String> getDescrizioniLavorazioni(){
 		List<String> list = new ArrayList<>();
 		for(Lavorazione l : this.lavorazioni)
-			if(l.getDescrizione()!=null && !list.contains(l.getDescrizione()))
+			if(!list.contains(l.getDescrizione()))
 				list.add(l.getDescrizione());
+		boolean b = false;
+		if(list.contains(null)) {
+			list.remove(null);
+			b = true;
+		}
 		Collections.sort(list);
+		if(b==true)
+			list.add(0, null);
 		return list;
 	}
 	
 	public List<String> getVociCapitolatoAttive(){
 		List<String> list = new ArrayList<>();
-		for(VoceCapitolatoCantiere vcc : this.vociCapitolatoCantiere)
-			if(vcc.getVoceCapitolato()!=null && !list.contains(vcc.getVoceCapitolato()))
-				list.add(vcc.getVoceCapitolato());
+		for(Lavorazione l : this.lavorazioni)
+			if(!list.contains(l.getVoceCapitolato()))
+				list.add(l.getVoceCapitolato());
+		boolean b = false;
+		if(list.contains(null)) {
+			list.remove(null);
+			b = true;
+		}
 		Collections.sort(list);
+		if(b==true)
+			list.add(0, null);
 		return list;
 	}
 	
@@ -341,8 +363,8 @@ public class Model {
 		return list;
 	}
 		
-	//da valutare se tenere
-	public List<Fattura> getFattureRichieste(String forn, Cantiere cant, String lav, String voce,
+	//da valutare se tenere	
+	/*public List<Fattura> getFattureRichieste(String forn, Cantiere cant, String lav, String voce,
 			LocalDate dataDa, LocalDate dataA) {
 		List<Fattura> list = new ArrayList<>();
 		List<Fattura> remove = new ArrayList<>();
@@ -473,7 +495,7 @@ public class Model {
 		list.removeAll(remove);
 		Collections.sort(list);
 		return list;
-	}
+	}*/
 	
 	public List<String> getFornitoriFatture(List<Fattura> list){
 		List<String> forn = new ArrayList<>();
@@ -484,7 +506,7 @@ public class Model {
 		return forn;
 	}
 	
-	public List<Cantiere> getCantieriFatture(List<Fattura> list){
+	/*public List<Cantiere> getCantieriFatture(List<Fattura> list){
 		List<Cantiere> cant = new ArrayList<>();
 		for(Fattura f : list)
 			for(Importo i : f.getImporti())
@@ -495,7 +517,7 @@ public class Model {
 		Collections.sort(cant);
 		cant.add(0, null);
 		return cant;
-	}
+	}*/
 	
 	public List<Cantiere> getCantieriFatture(List<Fattura> list, List<String> lav, List<String> voci) {
 		List<Cantiere> cant = new ArrayList<>();
@@ -505,14 +527,18 @@ public class Model {
 					if(lav.size()==0 || lav.contains(i.getLavorazione().getDescrizione()))
 						if(voci.size()==0 || voci.contains(i.getLavorazione().getVoceCapitolato()))
 							cant.add(i.getLavorazione().getCantiere());
-		if(cant.contains(null))
+		boolean b = false;
+		if(cant.contains(null)) {
 			cant.remove(null);
+			b = true;
+		}
 		Collections.sort(cant);
-		cant.add(0, null);
+		if(b==true)
+			cant.add(0, null);
 		return cant;
 	}
 	
-	
+	/*
 	public List<String> getDescrLavorazioniFatture(List<Fattura> list){
 		List<String> lav = new ArrayList<>();
 		for(Fattura f : list)
@@ -524,7 +550,7 @@ public class Model {
 		Collections.sort(lav);
 		lav.add(0, null);
 		return lav;
-	}
+	}*/
 	
 	public List<String> getDescrLavorazioniFatture(List<Fattura> list, List<Cantiere> cant, List<String> voci) {
 		List<String> lav = new ArrayList<>();
@@ -534,13 +560,17 @@ public class Model {
 					if(cant.size()==0 || cant.contains(i.getLavorazione().getCantiere()))
 						if(voci.size()==0 || voci.contains(i.getLavorazione().getVoceCapitolato()))
 							lav.add(i.getLavorazione().getDescrizione());
-		if(lav.contains(null))
+		boolean b = false;
+		if(lav.contains(null)) {
 			lav.remove(null);
+			b = true;
+		}
 		Collections.sort(lav);
-		lav.add(0, null);
+		if(b==true)
+			lav.add(0, null);
 		return lav;
 	}
-	
+	/*
 	public List<String> getVociFatture(List<Fattura> list){
 		List<String> voci = new ArrayList<>();
 		for(Fattura f : list)
@@ -552,7 +582,7 @@ public class Model {
 		Collections.sort(voci);
 		voci.add(0, null);
 		return voci;
-	}
+	}*/
 	
 	public List<String> getVociFatture(List<Fattura> list, List<Cantiere> cant, List<String> lav) {
 		List<String> voci = new ArrayList<>();
@@ -562,10 +592,14 @@ public class Model {
 					if(cant.size()==0 || cant.contains(i.getLavorazione().getCantiere()))
 						if(lav.size()==0 || lav.contains(i.getLavorazione().getDescrizione()))
 							voci.add(i.getLavorazione().getVoceCapitolato());
-		if(voci.contains(null))
+		boolean b = false;
+		if(voci.contains(null)) {
 			voci.remove(null);
+			b = true;
+		}
 		Collections.sort(voci);
-		voci.add(0, null);
+		if(b==true)
+			voci.add(0, null);
 		return voci;
 	}
 	

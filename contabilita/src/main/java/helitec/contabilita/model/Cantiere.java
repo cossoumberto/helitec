@@ -59,7 +59,10 @@ public class Cantiere implements Comparable<Cantiere>{
 
 	@Override
 	public String toString() {
-		return numero + " - " + denominazione ;
+		if(this.numero!=null)
+			return numero + " - " + denominazione ;
+		else
+			return "-- NON ATTRIBUITO --";
 	}
 
 	@Override
