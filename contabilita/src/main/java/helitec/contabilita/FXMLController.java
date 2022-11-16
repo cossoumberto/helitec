@@ -891,20 +891,18 @@ public class FXMLController {
 				this.inputList.put(inputList.size(), InputType.VoceCap);
 			}
     	}
-    	if(inputList.size()>0 || (min!=null || max!=null) ) {
-	    	//Recupero le fatture richieste
-	    	List<Fattura> list = model.getFattureRichieste(this.forn, this.cant, this.lav, this.voci, 
-	    			min, max, inputList);
-	    	//Verifico esistenza fatture
-	    	if(list.size()==0) {
-	    		this.FAtxtArea.setText("Fatture non trovate");
-	    		this.FAresetDate();
-	    	} else {
-		    	//Aggiorna box input
-		    	this.rimuoviInputExtraAggiornaBox(list);
-		    	//Stampa
-		    	this.stampaOutputRicerca(list);
-	    	}
+	    //Recupero le fatture richieste
+    	List<Fattura> list = model.getFattureRichieste(this.forn, this.cant, this.lav, this.voci, 
+    			min, max, inputList);
+    	//Verifico esistenza fatture
+    	if(list.size()==0) {
+    		this.FAtxtArea.setText("Fatture non trovate");
+    		this.FAresetDate();
+    	} else {
+	    	//Aggiorna box input
+	    	this.rimuoviInputExtraAggiornaBox(list);
+	    	//Stampa
+	    	this.stampaOutputRicerca(list);
     	}
     }
     
