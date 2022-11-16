@@ -43,8 +43,8 @@
                         <ComboBox fx:id="IFboxIVA" maxWidth="170.0" prefWidth="170.0" promptText="IVA" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                         <TextField fx:id="IFtxtRicercaCantiere" maxWidth="170.0" onKeyTyped="#IFricercaCantiere" prefWidth="170.0" promptText="Ricerca Cantiere" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                         <ComboBox fx:id="IFboxCantieri" maxWidth="170.0" prefWidth="170.0" promptText="Cantiere" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                        <TextField fx:id="IFtxtLavorazione" maxWidth="170.0" onKeyTyped="#IFricercaLavorazione" prefWidth="170.0" promptText="Lavorazione" GridPane.rowIndex="3" />
-                        <ComboBox fx:id="IFboxLavorazioni" maxWidth="170.0" prefWidth="170.0" promptText="Lavorazioni esistenti" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <TextField fx:id="IFtxtLavorazione" maxWidth="170.0" onKeyTyped="#IFricercaLavorazione" prefWidth="170.0" promptText="Lavorazione" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                        <ComboBox fx:id="IFboxLavorazioni" maxWidth="170.0" prefWidth="170.0" promptText="Lavorazioni esistenti" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                         <TextField fx:id="IFtxtRicercaVoce" maxWidth="170.0" onKeyTyped="#IFricercaVoci" prefWidth="170.0" promptText="Ricerca Voce Capitolato" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
                         <ComboBox fx:id="IFboxVoci" maxWidth="170.0" prefWidth="170.0" promptText="Voce Capitolato" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
                         <TextField fx:id="IFtxtImportoNoIva" maxWidth="170.0" prefWidth="170.0" promptText="Importo NO IVA" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
