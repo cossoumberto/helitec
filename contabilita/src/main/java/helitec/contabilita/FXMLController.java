@@ -1040,7 +1040,6 @@ public class FXMLController {
     void FAsetImporto(ActionEvent event) {
 
     }
-    
    
     @FXML
     void FAsetFornitore(ActionEvent event) {
