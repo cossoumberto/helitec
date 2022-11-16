@@ -328,6 +328,8 @@ public class FXMLController {
     	this.IFboxIVA.setDisable(false);
     	this.IFtxtRicercaCantiere.clear();
     	this.IFboxCantieri.setValue(null);
+    	this.IFboxCantieri.getItems().clear();
+    	this.IFboxCantieri.getItems().addAll(model.getCantieri());
     	this.IFtxtLavorazione.clear();
     	this.IFboxLavorazioni.getItems().clear();
     	this.IFboxLavorazioni.getItems().addAll(model.getDescrizioniLavorazioni());
@@ -1045,12 +1047,18 @@ public class FXMLController {
     @FXML
     void FAsetFornitore(ActionEvent event) {
     	if(this.FAboxForn.getValue()!=null) {
+    		this.FAtxtRicercaCant.setDisable(true);
+    		this.FAtxtRicercaLav.setDisable(true);
+    		this.FAtxtRicercaVoce.setDisable(true);
 	    	this.FAboxCant.setDisable(true);
-	    	this.FAboxLav.setDisable(true);
+	    	this.FAboxLav.setDisable(true);	
 	    	this.FAboxVoce.setDisable(true);
 	    	this.FAdataDa.setDisable(true);
 	    	this.FAdataA.setDisable(true);
     	} else {
+    		this.FAtxtRicercaCant.setDisable(false);
+    		this.FAtxtRicercaLav.setDisable(false);
+    		this.FAtxtRicercaVoce.setDisable(false);
     		this.FAboxCant.setDisable(false);
 	    	this.FAboxLav.setDisable(false);
 	    	this.FAboxVoce.setDisable(false);
@@ -1062,12 +1070,18 @@ public class FXMLController {
     @FXML
     void FAsetCantiere(ActionEvent event) {
     	if(this.FAboxCant.getValue()!=null) {
+    		this.FAtxtRicercaForn.setDisable(true);
+    		this.FAtxtRicercaLav.setDisable(true);
+    		this.FAtxtRicercaVoce.setDisable(true);
 	    	this.FAboxForn.setDisable(true);
 	    	this.FAboxLav.setDisable(true);
 	    	this.FAboxVoce.setDisable(true);
 	    	this.FAdataDa.setDisable(true);
 	    	this.FAdataA.setDisable(true);
     	} else {
+    		this.FAtxtRicercaForn.setDisable(false);
+    		this.FAtxtRicercaLav.setDisable(false);
+    		this.FAtxtRicercaVoce.setDisable(false);
     		this.FAboxForn.setDisable(false);
 	    	this.FAboxLav.setDisable(false);
 	    	this.FAboxVoce.setDisable(false);
@@ -1079,12 +1093,18 @@ public class FXMLController {
     @FXML
     void FAsetLavorazione(ActionEvent event) {
     	if(this.FAboxLav.getValue()!=null) {
+    		this.FAtxtRicercaForn.setDisable(true);
+    		this.FAtxtRicercaCant.setDisable(true);
+    		this.FAtxtRicercaVoce.setDisable(true);
 	    	this.FAboxForn.setDisable(true);
 	    	this.FAboxCant.setDisable(true);
 	    	this.FAboxVoce.setDisable(true);
 	    	this.FAdataDa.setDisable(true);
 	    	this.FAdataA.setDisable(true);
     	} else {
+    		this.FAtxtRicercaForn.setDisable(false);
+    		this.FAtxtRicercaCant.setDisable(false);
+    		this.FAtxtRicercaVoce.setDisable(false);
     		this.FAboxForn.setDisable(false);
 	    	this.FAboxCant.setDisable(false);
 	    	this.FAboxVoce.setDisable(false);
@@ -1096,12 +1116,18 @@ public class FXMLController {
     @FXML
     void FAsetVoce(ActionEvent event) {
     	if(this.FAboxVoce.getValue()!=null) {
+    		this.FAtxtRicercaForn.setDisable(true);
+    		this.FAtxtRicercaCant.setDisable(true);
+    		this.FAtxtRicercaLav.setDisable(true);
 	    	this.FAboxForn.setDisable(true);
 	    	this.FAboxCant.setDisable(true);
 	    	this.FAboxLav.setDisable(true);
 	    	this.FAdataDa.setDisable(true);
 	    	this.FAdataA.setDisable(true);
     	} else {
+    		this.FAtxtRicercaForn.setDisable(false);
+    		this.FAtxtRicercaCant.setDisable(false);
+    		this.FAtxtRicercaLav.setDisable(false);
     		this.FAboxForn.setDisable(false);
 	    	this.FAboxCant.setDisable(false);
 	    	this.FAboxLav.setDisable(false);
@@ -1346,6 +1372,8 @@ public class FXMLController {
     	}
     	if(!this.lastFornList.equals(this.FAboxForn.getItems()))
     		this.lastFornList = new ArrayList<>(this.FAboxForn.getItems());
+    	this.FAtxtRicercaForn.clear();
+    	this.FAtxtRicercaForn.setDisable(false);
     	this.FAboxForn.setDisable(false);
     	//	//Box cantieri
     	this.FAboxCant.getItems().clear();
@@ -1381,6 +1409,8 @@ public class FXMLController {
     	}
     	if(!this.lastCantList.equals(this.FAboxCant.getItems()))
     		this.lastCantList = new ArrayList<>(this.FAboxCant.getItems());
+    	this.FAtxtRicercaCant.clear();
+    	this.FAtxtRicercaCant.setDisable(false);
     	this.FAboxCant.setDisable(false);
     	//	//Box lavorazioni
     	this.FAboxLav.getItems().clear();
@@ -1417,6 +1447,8 @@ public class FXMLController {
     	}
     	if(!this.lastLavList.equals(this.FAboxLav.getItems()))
     		this.lastLavList = new ArrayList<>(this.FAboxLav.getItems());
+    	this.FAtxtRicercaLav.clear();
+    	this.FAtxtRicercaLav.setDisable(false);
     	this.FAboxLav.setDisable(false);
     	//	//Box voce
     	this.FAboxVoce.getItems().clear();
@@ -1452,6 +1484,8 @@ public class FXMLController {
     	}
     	if(!this.lastVociList.equals(this.FAboxLav.getItems()))
     		this.lastVociList = new ArrayList<>(this.FAboxVoce.getItems());
+    	this.FAtxtRicercaVoce.clear();
+    	this.FAtxtRicercaVoce.setDisable(false);
     	this.FAboxVoce.setDisable(false);
     	//	//Date
     	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
