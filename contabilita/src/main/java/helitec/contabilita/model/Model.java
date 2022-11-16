@@ -292,71 +292,76 @@ public class Model {
 
 	public List<Fattura> getFattureRichieste(List<String> forn, List<Cantiere> cant, List<String> lav,
 												List<String> voci, LocalDate dataDa, LocalDate dataA, Map<Integer, InputType> inputList) {
-		if(inputList.size()==0)
-			return fatture;
 		List<Fattura> list = new ArrayList<>();
 		List<Fattura> r = new ArrayList<>();
 		int i = 0;
-		if(inputList.get(i).equals(InputType.Fornitore)) {
-			while(i<forn.size() && inputList.get(i).equals(InputType.Fornitore)) {
-				for(Fattura f : fatture)
-					if(!list.contains(f) && forn.get(i).equals(f.getFornitore()))
-						list.add(f);
-				i++;
-			}
-		} else if(inputList.get(i).equals(InputType.Cantiere)) {
-			while(i<cant.size() && inputList.get(i).equals(InputType.Cantiere)) {
-				for(Fattura f : fatture)
-						if(!list.contains(f) && f.getCantieriFattura().contains(cant.get(i)))
+		if(inputList.size()>0) {
+			if(inputList.get(i).equals(InputType.Fornitore)) {
+				while(i<forn.size() && inputList.get(i).equals(InputType.Fornitore)) {
+					for(Fattura f : fatture)
+						if(!list.contains(f) && forn.get(i).equals(f.getFornitore()))
 							list.add(f);
-				i++;
-			}
-		} else if(inputList.get(i).equals(InputType.Lavorazione)) {
-			while(i<lav.size() && inputList.get(i).equals(InputType.Lavorazione)) {
-				for(Fattura f : fatture)
-						if(!list.contains(f) && f.getDescrLavorazioniFattura().contains(lav.get(i)))
-							list.add(f);
-				i++;
-			}
-		} else if(inputList.get(i).equals(InputType.VoceCap)) {
-			while(i<voci.size() && inputList.get(i).equals(InputType.VoceCap)) {
-				for(Fattura f : fatture)
-					if(!list.contains(f) && f.getVociCapitolatoFattura().contains(voci.get(i)))
-							list.add(f);
-				i++;
-			}
+					i++;
+				}
+			} else if(inputList.get(i).equals(InputType.Cantiere)) {
+				while(i<cant.size() && inputList.get(i).equals(InputType.Cantiere)) {
+					for(Fattura f : fatture)
+							if(!list.contains(f) && f.getCantieriFattura().contains(cant.get(i)))
+								list.add(f);
+					i++;
+				}
+			} else if(inputList.get(i).equals(InputType.Lavorazione)) {
+				while(i<lav.size() && inputList.get(i).equals(InputType.Lavorazione)) {
+					for(Fattura f : fatture)
+							if(!list.contains(f) && f.getDescrLavorazioniFattura().contains(lav.get(i)))
+								list.add(f);
+					i++;
+				}
+			} else if(inputList.get(i).equals(InputType.VoceCap)) {
+				while(i<voci.size() && inputList.get(i).equals(InputType.VoceCap)) {
+					for(Fattura f : fatture)
+						if(!list.contains(f) && f.getVociCapitolatoFattura().contains(voci.get(i)))
+								list.add(f);
+					i++;
+				}
+			} 
+		} else {
+			list.addAll(fatture);
 		}
 		for(Fattura f : list)
 			if(!r.contains(f)) {
-				if(!inputList.get(0).equals(InputType.Fornitore) && forn.size()>0 && !forn.contains(f.getFornitore()))
+				if(inputList.size()>1) {
+					if(!inputList.get(0).equals(InputType.Fornitore) && forn.size()>0 && !forn.contains(f.getFornitore()))
+						r.add(f);
+					if(!inputList.get(0).equals(InputType.Cantiere) && cant.size()>0) {
+						int count = 0;
+						for(Cantiere c : cant) 
+							if(f.getCantieriFattura().contains(c))
+								count++;
+						if(count==0)
+							r.add(f);
+					}
+					if(!inputList.get(0).equals(InputType.Lavorazione) && lav.size()>0) {
+						int count = 0;
+						for(String s : lav) 
+							if(f.getDescrLavorazioniFattura().contains(s))
+								count++;
+						if(count==0)
+							r.add(f);
+					}
+					if(!inputList.get(0).equals(InputType.VoceCap) && voci.size()>0) {
+						int count = 0;
+						for(String s : voci) 
+							if(f.getVociCapitolatoFattura().contains(s))
+								count++;
+						if(count==0)
+							r.add(f);
+					}
+				}
+				if(dataDa!=null && f.getData().isBefore(dataDa))
 					r.add(f);
-				if(!inputList.get(0).equals(InputType.Cantiere) && cant.size()>0) {
-					int count = 0;
-					for(Cantiere c : cant) 
-						if(f.getCantieriFattura().contains(c))
-							count++;
-					if(count==0)
-						r.add(f);
-				}
-				if(!inputList.get(0).equals(InputType.Lavorazione) && lav.size()>0) {
-					int count = 0;
-					for(String s : lav) 
-						if(f.getDescrLavorazioniFattura().contains(s))
-							count++;
-					if(count==0)
-						r.add(f);
-				}
-				if(!inputList.get(0).equals(InputType.VoceCap) && voci.size()>0) {
-					int count = 0;
-					for(String s : voci) 
-						if(f.getVociCapitolatoFattura().contains(s))
-							count++;
-					if(count==0)
-						r.add(f);
-				}
-			/*	if(!retain.contains(f) && 
-						( (dataA==null || f.getData().isBefore(dataA)) && (dataDa==null || f.getData().isAfter(dataDa)) ) )
-					retain.add(f);*/
+				if(dataA!=null && f.getData().isAfter(dataA))
+					r.add(f);
 			}
 		list.removeAll(r);
 		Collections.sort(list);

@@ -625,9 +625,7 @@ public class FXMLController {
     private Map<Integer, InputType> inputList;
     private String nd;
     
-    public enum InputType {
-    	Fornitore, Cantiere, Lavorazione, VoceCap, DataMin, DataMax
-    }
+    public enum InputType { Fornitore, Cantiere, Lavorazione, VoceCap}
     
     @FXML // fx:id="FAboxForn"
     private ComboBox<String> FAboxForn; // Value injected by FXMLLoader
@@ -667,6 +665,9 @@ public class FXMLController {
     
     @FXML // fx:id="FAbtnResetFiltri"
     private Button FAbtnResetFiltri; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="FAbtnResetDate"
+    private Button FAbtnResetDate; // Value injected by FXMLLoader
 
     @FXML // fx:id="FAtxtArea"
     private TextArea FAtxtArea; // Value injected by FXMLLoader
@@ -848,6 +849,17 @@ public class FXMLController {
     @FXML
     void FAinserisci(ActionEvent event) {
     	//Memorizzazione input
+    	if(this.FAdataDa.getValue()!=null || this.FAdataA.getValue()!=null) {
+    		if(this.FAdataDa.getValue()!=null)
+    			min = this.FAdataDa.getValue();
+    		if(this.FAdataA.getValue()!=null)
+    			max = this.FAdataA.getValue();
+    		if(min!=null && max!=null && min.isAfter(max)) {
+    			this.FAtxtArea.setText("Errore inserimento date");
+    			this.FAresetDate();
+    			return;
+    		}
+    	}
     	if(this.FAboxForn.getValue()!=null && !this.forn.contains(this.FAboxForn.getValue())) {
     		forn.add(this.FAboxForn.getValue());
     		this.inputList.put(inputList.size(), InputType.Fornitore);
@@ -879,14 +891,20 @@ public class FXMLController {
 				this.inputList.put(inputList.size(), InputType.VoceCap);
 			}
     	}
-    	if(inputList.size()>0) {
+    	if(inputList.size()>0 || (min!=null || max!=null) ) {
 	    	//Recupero le fatture richieste
 	    	List<Fattura> list = model.getFattureRichieste(this.forn, this.cant, this.lav, this.voci, 
-	    			this.FAdataDa.getValue(), this.FAdataA.getValue(), inputList);
-	    	//Aggiorna box input
-	    	this.rimuoviInputExtraAggiornaBox(list);
-	    	//Stampa
-	    	this.stampaOutputRicerca(list);
+	    			min, max, inputList);
+	    	//Verifico esistenza fatture
+	    	if(list.size()==0) {
+	    		this.FAtxtArea.setText("Fatture non trovate");
+	    		this.FAresetDate();
+	    	} else {
+		    	//Aggiorna box input
+		    	this.rimuoviInputExtraAggiornaBox(list);
+		    	//Stampa
+		    	this.stampaOutputRicerca(list);
+	    	}
     	}
     }
     
@@ -924,6 +942,10 @@ public class FXMLController {
 
     @FXML
     void FArimuovi(ActionEvent event) {	
+    	if(this.FAtxtArea.getText().equals("Fatture non trovate") || (this.FAtxtArea.getText().equals("Errore inserimento date"))) {
+    		this.stampaOutputRicerca(this.FAboxFatture.getItems());
+    		return;
+    	}
 		List<Fattura> fatture = null;
 		//Rimozione fornitore immesso da eliminare
 		if(this.FAboxForn.getValue()!=null && this.forn.contains(this.FAboxForn.getValue())) {
@@ -1081,7 +1103,7 @@ public class FXMLController {
 	    	this.FAboxLav.setDisable(true);
 	    	this.FAdataDa.setDisable(true);
 	    	this.FAdataA.setDisable(true);
-    	}else {
+    	} else {
     		this.FAboxForn.setDisable(false);
 	    	this.FAboxCant.setDisable(false);
 	    	this.FAboxLav.setDisable(false);
@@ -1092,12 +1114,48 @@ public class FXMLController {
     
     @FXML
     void FAsetDataA(ActionEvent event) {
-
+    	if(this.FAdataA.getValue()!=null) {
+	    	this.FAboxForn.setDisable(true);
+	    	this.FAboxCant.setDisable(true);
+	    	this.FAboxLav.setDisable(true);
+	    	this.FAboxVoce.setDisable(true);
+    	} else {
+    		this.FAboxForn.setDisable(false);
+	    	this.FAboxCant.setDisable(false);
+	    	this.FAboxLav.setDisable(false);
+	    	this.FAboxVoce.setDisable(false);
+    	}
     }
 
     @FXML
     void FAsetDataDa(ActionEvent event) {
-
+    	if(this.FAdataDa.getValue()!=null) {
+	    	this.FAboxForn.setDisable(true);
+	    	this.FAboxCant.setDisable(true);
+	    	this.FAboxLav.setDisable(true);
+	    	this.FAboxVoce.setDisable(true);
+    	} else {
+    		this.FAboxForn.setDisable(false);
+	    	this.FAboxCant.setDisable(false);
+	    	this.FAboxLav.setDisable(false);
+	    	this.FAboxVoce.setDisable(false);
+    	}
+    }
+    
+    @FXML
+    void FAresetDate(ActionEvent event) {
+    	this.FAresetDate();
+    }
+    
+    private void FAresetDate() {
+    	this.min = null;
+    	this.max = null;
+    	this.FAdataDa.setDisable(false);
+    	this.FAdataA.setDisable(false);
+    	this.FAdataDa.setValue(null);
+    	this.FAdataA.setValue(null);
+    	this.FAdataDa.setPromptText("Da");
+    	this.FAdataA.setPromptText("A");
     }
     
     private void FAresetDatiInput() {
@@ -1128,6 +1186,8 @@ public class FXMLController {
     		boxVoci.remove(null);
     	}	
     	this.FAboxVoce.getItems().addAll(boxVoci);
+    	this.FAdataDa.setDisable(false);
+    	this.FAdataA.setDisable(false);
     	this.forn = new ArrayList<>();
     	this.cant = new ArrayList<>();
     	this.lav = new ArrayList<>();
@@ -1251,6 +1311,11 @@ public class FXMLController {
 	    		inputList.remove(i);
 	    	inputList = this.ricalcolaInputIndex(inputList);
     	}
+    	//	//set date max e min 
+    	if(min!=null)
+    		min = model.getDataMinFatture(list);
+    	if(max!=null)
+    		max = model.getDataMaxFatture(list);
     	//Aggiorno le varie box con le possibili scelte
     	//	//Box fatture
     	this.FAboxFatture.getItems().clear();
@@ -1380,18 +1445,23 @@ public class FXMLController {
     	this.FAboxVoce.setDisable(false);
     	//	//Date
     	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    	this.FAdataDa.setPromptText(model.getDataMinFatture(list).format(formatter));
-    	this.FAdataA.setPromptText(model.getDataMaxFatture(list).format(formatter));
+    	if(min!=null)
+    		this.FAdataDa.setPromptText(min.format(formatter));
+    	if(max!=null)
+    		this.FAdataA.setPromptText(max.format(formatter));
     	this.FAdataDa.setDisable(false);
     	this.FAdataA.setDisable(false);
+    	this.FAdataA.setValue(null);
+    	this.FAdataDa.setValue(null);
     }
     
     private void stampaOutputRicerca(List<Fattura> fatture) {
-    	this.FAtxtArea.setText("Elenco fatture richieste");
-		if(this.FAdataDa.getValue()!=null)
-			this.FAtxtArea.appendText(" dal " + this.FAdataDa.getValue());
-		if(this.FAdataA.getValue()!=null)
-			this.FAtxtArea.appendText(" al " + this.FAdataA.getValue());
+		this.FAtxtArea.setText("Elenco fatture richieste");
+    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		if(min!=null)
+			this.FAtxtArea.appendText(" dal " + min.format(formatter));
+		if(max!=null)
+			this.FAtxtArea.appendText(" fino al " + max.format(formatter));
 		List<Cantiere> cStamp = new ArrayList<>(cant);
 		if(cant.contains(null)) {
 			int i = cant.indexOf(null);
@@ -1526,6 +1596,7 @@ public class FXMLController {
         assert FAtxtRicercaCant != null : "fx:id=\"FAtxtRicercaCant\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAtxtRicercaForn != null : "fx:id=\"FAtxtRicercaForn\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAbtnResetFiltri != null : "fx:id=\"FAbtnResetFiltri\" was not injected: check your FXML file 'Scene.fxml'.";
+        assert FAbtnResetDate != null : "fx:id=\"FAbtnResetDate\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAtxtArea != null : "fx:id=\"FAtxtArea\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAtxtImportoFattura != null : "fx:id=\"FAtxtImportoFattura\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAboxFatture != null : "fx:id=\"FAboxFatture\" was not injected: check your FXML file 'Scene.fxml'.";
