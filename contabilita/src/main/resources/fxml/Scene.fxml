@@ -196,7 +196,7 @@
                         <TextField fx:id="FAtxtRicercaCant2" maxWidth="170.0" onKeyTyped="#FAricercaCant2" prefWidth="170.0" promptText="Ricerca Cantiere" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                         <ComboBox fx:id="FAboxCant2" maxWidth="170.0" prefWidth="170.0" promptText="Cantiere" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                         <TextField fx:id="FAtxtLavorazione" maxWidth="170.0" prefWidth="170.0" promptText="Lavorazione" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
-                        <ComboBox fx:id="FAboxLavorazioni2" maxWidth="170.0" prefWidth="170.0" promptText="Lavorazioni esistenti" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <ComboBox fx:id="FAboxLavorazioni2" maxWidth="170.0" prefWidth="170.0" promptText="Lavorazioni esistenti" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
                         <TextField fx:id="FAtxtRicercaVoce2" maxWidth="170.0" onKeyTyped="#FAricercaVoce2" prefWidth="170.0" promptText="Ricerca Voce Capitolato" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
                         <ComboBox fx:id="FAboxVoce2" maxWidth="170.0" prefWidth="170.0" promptText="Voce Capitolato" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
                         <TextField fx:id="FAtxtImportNoIva" maxWidth="170.0" prefWidth="170.0" promptText="Importo NO IVA" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
