@@ -179,6 +179,9 @@ public class FXMLController {
     		this.IFbtnCancArea.setDisable(false);
     		//Aggiornamento dati input altre sezioni
     		this.FAresetDatiInput();
+    		this.FAtxtArea.clear();
+    		this.FAboxFatture.getItems().clear();
+    		this.FAboxFatture.getItems().addAll(model.getFatture());
     	} else if(f!=null && f.getImporti().size()==0)
     		this.IFtxtArea.setText(f.toStringConImporti() + "\n\nInserire importi");
     	else
