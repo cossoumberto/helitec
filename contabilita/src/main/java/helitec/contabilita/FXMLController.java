@@ -245,7 +245,7 @@ public class FXMLController {
     	
     	//Gestione inserimento lavorazione
     	Lavorazione l = null;
-    	if(this.IFtxtLavorazione.getText().trim().length()>0 && this.IFtxtLavorazione.getText().trim().length()<=100) {
+    	if(this.IFboxLavorazioni.getValue()!=null || this.IFtxtLavorazione.getText().trim().length()>0 && this.IFtxtLavorazione.getText().trim().length()<=100) {
     		l = new Lavorazione();
     		if(this.IFboxCantieri.getValue()!=null) 
     			l.setCantiere(this.IFboxCantieri.getValue());
@@ -633,6 +633,7 @@ public class FXMLController {
     private LocalDate min;
     private Map<Integer, InputType> inputList;
     private String nd;
+    private Fattura f2;
     
     public enum InputType { Fornitore, Cantiere, Lavorazione, VoceCap}
     
@@ -693,12 +694,6 @@ public class FXMLController {
     @FXML // fx:id="FAtxtNoteFattura"
     private TextField FAtxtNoteFattura; // Value injected by FXMLLoader
 
-    @FXML // fx:id="FAbtnCancNoteFattura"
-    private Button FAbtnCancNoteFattura; // Value injected by FXMLLoader
-
-    @FXML // fx:id="FAbtnModNoteFattura"
-    private Button FAbtnModNoteFattura; // Value injected by FXMLLoader
-
     @FXML // fx:id="FAboxImporti"
     private ComboBox<Importo> FAboxImporti; // Value injected by FXMLLoader
 
@@ -734,9 +729,6 @@ public class FXMLController {
 
     @FXML // fx:id="FAtxtNoteImporto"
     private TextField FAtxtNoteImporto; // Value injected by FXMLLoader
-
-    @FXML // fx:id="FAbtnCancInserimento"
-    private Button FAbtnCancInserimento; // Value injected by FXMLLoader
 
     @FXML // fx:id="FAbtnConferma"
     private Button FAbtnConferma; // Value injected by FXMLLoader
@@ -817,38 +809,72 @@ public class FXMLController {
 	    	this.FAboxVoce.getItems().add(null);
 	    	this.FAboxVoce.getItems().addAll(list);
 	    } else {
-			this.FAboxLav.getItems().clear();
-			this.FAboxLav.getItems().addAll(this.lastVociList);
+			this.FAboxVoce.getItems().clear();
+			this.FAboxVoce.getItems().addAll(this.lastVociList);
 	    }
     }
 
     @FXML
     void FAsetFattura(ActionEvent event) {
     	if(this.FAboxFatture.getValue()!=null) {
-    		this.FAtxtArea.setText(this.FAboxFatture.getValue().toStringConImporti());
-    		this.FAtxtImportoFattura.setText(this.FAboxFatture.getValue().getImportoTot().toString());
-    		this.FAtxtNoteFattura.setText(this.FAboxFatture.getValue().getNote());
+    		this.FAresetDatiImporto();
+    		f2 = new Fattura(this.FAboxFatture.getValue());
+    		this.f2.rimuoviImporti();
+    		for(Importo i : this.FAboxFatture.getValue().getImporti())
+    			f2.addImporto(new Importo(i));
+    		this.FAtxtArea.setText(f2.toStringConImporti());
+    		this.FAtxtImportoFattura.setText(f2.getImportoTot().toString());
+    		this.FAtxtNoteFattura.setDisable(false);
+    		this.FAtxtNoteFattura.setText(f2.getNote());
+    		this.FAboxImporti.setDisable(false);
+    		this.FAboxImporti.getItems().clear();
+    		this.FAboxImporti.getItems().add(new Importo(null, null, null, null, null, null));
+    		this.FAboxImporti.getItems().addAll(f2.getImporti());
+    	} else {
+    		this.FAtxtNoteFattura.setDisable(true);
+    		this.FAboxImporti.setDisable(true);
     	}
     }
 
     @FXML
     void FAcancImporto(ActionEvent event) {
-
-    }
-
-    @FXML
-    void FAcancInserimento(ActionEvent event) {
-
-    }
-
-    @FXML
-    void FAcancNoteFattura(ActionEvent event) {
-
+    	if(this.FAboxImporti.getValue()!=null && f2!=null && f2.getImporti().size()>0 
+    			&& this.FAtxtArea.getText().equals(this.f2.toStringConImporti())) {
+    		f2.cancImporto(this.FAboxImporti.getValue());
+    		this.FAtxtArea.setText(f2.toStringConImporti());
+    		this.FAboxImporti.getItems().clear();
+    		this.FAboxImporti.getItems().addAll(f2.getImporti());
+    		this.FAtxtImportoFattura.setText(f2.getImportoTot().toString());
+    		if(f2.getImporti().size()>0) {
+            	this.FAbtnConferma.setDisable(false);
+        	}
+    	} else if(this.FAboxImporti.getValue()!=null && f2!=null) {
+    		this.FAtxtArea.setText(f2.toStringConImporti());
+    	}
     }
 
     @FXML
     void FAconferma(ActionEvent event) {
-
+    	if(f2!=null && f2.getImporti().size()>0 && this.FAtxtArea.getText().equals(f2.toStringConImporti())) {
+    		if(this.FAtxtNoteFattura.getText()!=null 
+    				&& this.FAtxtNoteFattura.getText().trim().length()>0 && this.FAtxtNoteFattura.getText().trim().length()<=400)
+    			f2.setNote(this.FAtxtNoteFattura.getText().trim().toUpperCase());
+    		else if(this.FAtxtNoteFattura.getText()!=null && this.FAtxtNoteFattura.getText().trim().length()>400) {
+    			this.FAtxtArea.appendText("\n\nInserire max 400 caratteri in Note Fattura");
+    			return;
+    		}
+    		if(this.FAboxFatture.getValue().equalsTotale(f2))
+				this.FAtxtArea.appendText("\n\nNessuna modifica effettuata");
+			else {
+	    		model.aggiornaFattura(this.FAboxFatture.getValue(), this.f2);
+	    		this.FAboxImporti.getItems().clear();
+	    		this.FAboxImporti.getItems().addAll(f2.getImporti());
+	    		this.FAtxtImportoFattura.setText(f2.getImportoTot().toString());
+	    		this.FAresetDatiInput();
+	    		this.FAresetDatiImporto();  
+	    		this.FAtxtArea.appendText("\n\nFattura aggiornata correttamente");
+			}
+    	}
     }
 
     @FXML
@@ -913,32 +939,151 @@ public class FXMLController {
     
     @FXML
     void FAinserisciImporto(ActionEvent event) {
-
-    }
-
-    @FXML
-    void FAmodNoteFattura(ActionEvent event) {
-
+    		//Gestione inserimento importi numerici
+        	Double importoLavNoIva = null;
+        	try {
+    			importoLavNoIva = Double.parseDouble(this.FAtxtImportNoIva.getText());
+    			if(importoLavNoIva<0)
+    				throw new NumberFormatException();
+    		} catch (NumberFormatException e) {
+    			this.FAtxtArea.appendText("\n\nInserimento importo non valido");
+    			return;
+    			//e.printStackTrace();
+    		}
+        	Double importoLav = null;
+        	try {
+    			importoLav = Double.parseDouble(this.FAtxtImportoTot.getText());
+    			if(importoLav<0)
+    				throw new NumberFormatException();
+    			BigDecimal x = new BigDecimal(importoLav).setScale(2, RoundingMode.HALF_EVEN);
+    			importoLav = x.doubleValue();
+    		} catch (NumberFormatException e) {
+    			this.FAtxtArea.appendText("\n\nInserimento importo non valido");
+    			return;
+    			//e.printStackTrace();
+    		}	
+    		//Gestione lavorazione
+    		Lavorazione l = null;
+    		l = new Lavorazione();
+    		if(this.FAboxLavorazioni2.getValue()!=null)
+    			l.setDescrizione(this.FAboxLavorazioni2.getValue());
+        	else {
+        			if(this.FAtxtLavorazione.getText().trim().length()>0 && this.FAtxtLavorazione.getText().trim().length()<=100 &&
+        					!this.FAboxLavorazioni2.getItems().contains(this.FAtxtLavorazione.getText().trim().toUpperCase())) {
+        			l.setDescrizione(this.FAtxtLavorazione.getText().trim().toUpperCase());
+        			} else if(this.FAtxtLavorazione.getText().trim().length()==0) {
+        	    		this.FAtxtArea.appendText("\n\nInserire lavorazione");
+        				return;
+        			} else if (this.FAtxtLavorazione.getText().trim().length()>100) {
+        				this.FAtxtArea.appendText("\n\nInserire descrizine lavorazione di max 100 caratteri");
+        				return;
+        			} else if(this.FAboxLavorazioni2.getItems().contains(this.FAtxtLavorazione.getText().trim().toUpperCase())){
+        				this.FAtxtArea.appendText("\n\nSelezionare lavorazione tra quelle esistenti");
+        				return;
+        			}
+    		}
+    		if(this.FAboxCant2.getValue()!=null) 
+    			l.setCantiere(this.FAboxCant2.getValue());
+    		if(this.FAboxVoce2.getValue()!=null)
+    			l.setVoceCapitolato(this.FAboxVoce2.getValue());
+    		String note = null;
+    		if(this.FAtxtNoteImporto.getText()!=null && this.FAtxtNoteImporto.getText().trim().length()>0)
+    			note = this.FAtxtNoteImporto.getText().trim().toUpperCase();
+    		if(this.FAboxImporti.getValue()!=null && this.FAboxImporti.getValue().getNumero()!=null) {
+        		this.f2.getImporti().get(this.f2.getImporti().indexOf(this.FAboxImporti.getValue())).setLavorazione(l);
+        		this.f2.getImporti().get(this.f2.getImporti().indexOf(this.FAboxImporti.getValue())).setImporto(importoLavNoIva);
+        		this.f2.getImporti().get(this.f2.getImporti().indexOf(this.FAboxImporti.getValue())).setImportoIva(importoLav);
+        		this.f2.getImporti().get(this.f2.getImporti().indexOf(this.FAboxImporti.getValue())).setNote(note);
+        		this.f2.calcolaImportoTot();
+        		if(this.FAboxFatture.getValue().getImporti().get(this.f2.getImporti().indexOf(this.FAboxImporti.getValue())).
+        				equalsTotale
+        					(this.f2.getImporti().get(this.f2.getImporti().indexOf(this.FAboxImporti.getValue())))) {
+        			this.FAtxtArea.setText(this.f2.toStringConImporti());
+        			this.FAtxtArea.appendText("\n\nNessuma modifica effettuata sull'importo selezionato");
+        			return;
+        		}
+        	} else {
+        		Importo i = new Importo (f2.getImporti().size()+1, f2, l, importoLavNoIva, importoLav, note);
+        		f2.addImporto(i);
+        	}
+    		this.FAtxtArea.setText(this.f2.toStringConImporti());
+    		this.FAtxtImportoFattura.setText(this.f2.getImportoTot().toString());
+    		this.FAboxImporti.getItems().clear();
+    		this.FAboxImporti.getItems().add(new Importo(null, null, null, null, null, null));
+    		this.FAboxImporti.getItems().addAll(f2.getImporti());
+        	if(f2.getImporti().size()>0) {
+            	this.FAbtnConferma.setDisable(false);
+        	}
     }
 
     @FXML
     void FAreset(ActionEvent event) {
+    	this.FAresetDatiInput();
+    	this.FAtxtImportoFattura.clear();
+    	this.FAtxtNoteFattura.clear();
+    	this.FAresetDatiImporto();
+    	this.FAtxtArea.clear();
 
     }
     
     @FXML
     void FAresetFiltri(ActionEvent event) {
     	this.FAresetDatiInput();
+    	this.stampaOutputRicerca(model.getFatture());
     }
 
     @FXML
     void FAricercaCant2(KeyEvent event) {
-
+    	if(this.FAtxtRicercaCant2.getText().trim().length()>0) {
+		    String ins = this.FAtxtRicercaCant2.getText().trim().toUpperCase();
+		   	List<Cantiere> list = new ArrayList<>();
+		   	for(Cantiere c : model.getCantieri())
+		   		if(c!=null && c.toString().contains(ins))
+		   			list.add(c);
+	    	this.FAboxCant2.getItems().clear();
+	    	this.FAboxCant2.getItems().add(null);
+	    	this.FAboxCant2.getItems().addAll(list);
+	    } else {
+			this.FAboxCant2.getItems().clear();
+			this.FAboxCant2.getItems().add(null);
+			this.FAboxCant2.getItems().addAll(model.getCantieri());
+	    }
+    }
+    
+    @FXML
+    void FAricercaLav2(KeyEvent event) {
+    	if(this.FAtxtLavorazione.getText().trim().length()>0) {
+		    String ins = this.FAtxtLavorazione.getText().trim().toUpperCase();
+		   	List<String> list = new ArrayList<>();
+		   	for(String s : model.getDescrizioniLavorazioni())
+		   		if(s!=null && s.contains(ins))
+		   			list.add(s);
+	    	this.FAboxLavorazioni2.getItems().clear();
+	    	this.FAboxLavorazioni2.getItems().add(null);
+	    	this.FAboxLavorazioni2.getItems().addAll(list);
+	    } else {
+			this.FAboxLavorazioni2.getItems().clear();
+			this.FAboxLavorazioni2.getItems().add(null);
+			this.FAboxLavorazioni2.getItems().addAll(model.getDescrizioniLavorazioni());
+	    }
     }
 
     @FXML
     void FAricercaVoce2(KeyEvent event) {
-
+    	if(this.FAtxtRicercaVoce2.getText().trim().length()>0) {
+		    String ins = this.FAtxtRicercaVoce2.getText().trim().toUpperCase();
+		   	List<String> list = new ArrayList<>();
+		   	for(String s : model.getVociCapitolato())
+		   		if(s!=null && s.contains(ins))
+		   			list.add(s);
+	    	this.FAboxVoce2.getItems().clear();
+	    	this.FAboxVoce2.getItems().add(null);
+	    	this.FAboxVoce2.getItems().addAll(list);
+	    } else {
+			this.FAboxVoce2.getItems().clear();
+			this.FAboxVoce2.getItems().add(null);
+			this.FAboxVoce2.getItems().addAll(model.getVociCapitolato());
+	    }
     }
 
     @FXML
@@ -1041,7 +1186,44 @@ public class FXMLController {
 
 	@FXML
     void FAsetImporto(ActionEvent event) {
-
+		if(this.FAboxImporti.getValue()!=null && this.FAboxImporti.getValue().getNumero()!=null) {
+			//attivazione input
+			this.FAbtnCanImporto.setDisable(false);
+			this.FAtxtRicercaCant2.setDisable(false);
+			this.FAboxCant2.setDisable(false);
+			this.FAboxCant2.setValue(this.FAboxImporti.getValue().getLavorazione().getCantiere());
+			this.FAtxtLavorazione.setDisable(false);
+			this.FAboxLavorazioni2.setDisable(false);
+			this.FAboxLavorazioni2.setValue(this.FAboxImporti.getValue().getLavorazione().getDescrizione());
+			this.FAtxtRicercaVoce2.setDisable(false);
+			this.FAboxVoce2.setDisable(false);
+			this.FAboxVoce2.setValue(this.FAboxImporti.getValue().getLavorazione().getVoceCapitolato());
+			this.FAtxtImportNoIva.setDisable(false);
+			this.FAtxtImportNoIva.setText(this.FAboxImporti.getValue().getImporto().toString());
+			this.FAtxtImportoTot.setDisable(false);
+			this.FAtxtImportoTot.setText(this.FAboxImporti.getValue().getImportoIva().toString());
+			this.FAbtnInserisci2.setDisable(false);
+			this.FAtxtNoteImporto.setDisable(false);
+			this.FAtxtNoteImporto.setText(this.FAboxImporti.getValue().getNote());
+    	} else if(this.FAboxImporti.getValue()!=null && this.FAboxImporti.getValue().getNumero()==null) {
+    		this.FAbtnCanImporto.setDisable(false);
+			this.FAtxtRicercaCant2.setDisable(false);
+			this.FAboxCant2.setDisable(false);
+			this.FAboxCant2.setValue(null);
+			this.FAtxtLavorazione.setDisable(false);
+			this.FAboxLavorazioni2.setDisable(false);
+			this.FAboxLavorazioni2.setValue(null);
+			this.FAtxtRicercaVoce2.setDisable(false);
+			this.FAboxVoce2.setDisable(false);
+			this.FAboxVoce2.setValue(null);
+			this.FAtxtImportNoIva.setDisable(false);
+			this.FAtxtImportNoIva.setText(null);
+			this.FAtxtImportoTot.setText(null);
+			this.FAtxtImportoTot.setDisable(false);
+			this.FAbtnInserisci2.setDisable(false);
+			this.FAtxtNoteImporto.setDisable(false);
+			this.FAtxtNoteImporto.setText(null);
+    	}
     }
    
     @FXML
@@ -1139,11 +1321,19 @@ public class FXMLController {
     @FXML
     void FAsetDataA(ActionEvent event) {
     	if(this.FAdataA.getValue()!=null) {
+    		this.FAtxtRicercaForn.setDisable(true);
+    		this.FAtxtRicercaCant.setDisable(true);
+    		this.FAtxtRicercaLav.setDisable(true);
+    		this.FAtxtRicercaVoce.setDisable(true);
 	    	this.FAboxForn.setDisable(true);
 	    	this.FAboxCant.setDisable(true);
 	    	this.FAboxLav.setDisable(true);
 	    	this.FAboxVoce.setDisable(true);
-    	} else {
+    	} else if(this.FAdataDa.getValue()==null){
+    		this.FAtxtRicercaForn.setDisable(false);
+    		this.FAtxtRicercaCant.setDisable(false);
+    		this.FAtxtRicercaLav.setDisable(false);
+    		this.FAtxtRicercaVoce.setDisable(false);
     		this.FAboxForn.setDisable(false);
 	    	this.FAboxCant.setDisable(false);
 	    	this.FAboxLav.setDisable(false);
@@ -1154,11 +1344,19 @@ public class FXMLController {
     @FXML
     void FAsetDataDa(ActionEvent event) {
     	if(this.FAdataDa.getValue()!=null) {
+    		this.FAtxtRicercaForn.setDisable(true);
+    		this.FAtxtRicercaCant.setDisable(true);
+    		this.FAtxtRicercaLav.setDisable(true);
+    		this.FAtxtRicercaVoce.setDisable(true);
 	    	this.FAboxForn.setDisable(true);
 	    	this.FAboxCant.setDisable(true);
 	    	this.FAboxLav.setDisable(true);
 	    	this.FAboxVoce.setDisable(true);
-    	} else {
+    	} else if(this.FAdataA.getValue()==null){
+    		this.FAtxtRicercaForn.setDisable(false);
+    		this.FAtxtRicercaCant.setDisable(false);
+    		this.FAtxtRicercaLav.setDisable(false);
+    		this.FAtxtRicercaVoce.setDisable(false);
     		this.FAboxForn.setDisable(false);
 	    	this.FAboxCant.setDisable(false);
 	    	this.FAboxLav.setDisable(false);
@@ -1173,7 +1371,17 @@ public class FXMLController {
     
     @FXML
     void FAsetImportoTot(ActionEvent event) {
-
+    	try {
+	   		Double d1 = Double.parseDouble(this.FAtxtImportNoIva.getText());
+	   		if(d1>=0 && f2!=null) {
+	   			Double d2 = d1 * (1+this.f2.getIva().doubleValue()/100);
+	   			BigDecimal x = new BigDecimal(d2).setScale(2, RoundingMode.HALF_EVEN);
+	   			this.FAtxtImportoTot.setText(x.toString());
+	   		} 
+	   	} catch (NumberFormatException e) {
+			return;
+			//e.printStackTrace();
+		}	
     }
     
     private void FAresetDate() {
@@ -1188,10 +1396,12 @@ public class FXMLController {
     }
     
     private void FAresetDatiInput() {
+    	this.FAtxtRicercaForn.clear();
     	this.FAboxForn.getItems().clear();
     	this.FAboxForn.getItems().add(null);
     	this.FAboxForn.getItems().addAll(model.getFornitori());
     	this.lastFornList = new ArrayList<>(this.FAboxForn.getItems());
+    	this.FAtxtRicercaCant.clear();
     	this.FAboxCant.getItems().clear();
     	this.FAboxCant.getItems().add(null);
     	List<Cantiere> boxCant = model.getCantieriAttivi();
@@ -1201,6 +1411,7 @@ public class FXMLController {
     	}	
     	this.FAboxCant.getItems().addAll(boxCant);
     	this.lastCantList = new ArrayList<>(this.FAboxCant.getItems());
+    	this.FAtxtRicercaLav.clear();
     	this.FAboxLav.getItems().clear();
     	this.FAboxLav.getItems().add(null);
     	List<String> boxLav = model.getDescrizioniLavorazioni();
@@ -1210,6 +1421,7 @@ public class FXMLController {
     	}	
     	this.FAboxLav.getItems().addAll(boxLav);
     	this.lastLavList = new ArrayList<>(this.FAboxLav.getItems());
+    	this.FAtxtRicercaVoce.clear();
     	this.FAboxVoce.getItems().clear();
     	this.FAboxVoce.getItems().add(null);
     	List<String> boxVoci = model.getVociCapitolatoAttive();
@@ -1227,6 +1439,42 @@ public class FXMLController {
     	this.voci = new ArrayList<>();
     	this.inputList = new TreeMap<>();
     	this.FAresetDate();
+    	this.FAboxFatture.getItems().clear();
+    	this.FAboxFatture.getItems().addAll(model.getFatture());
+    	if(this.f2!=null)
+    		this.FAboxFatture.setValue(f2);
+    }
+    
+    private void FAresetDatiImporto() {
+    	this.FAbtnCanImporto.setDisable(true);
+    	this.FAtxtRicercaCant2.setDisable(true);
+    	this.FAtxtRicercaCant2.clear();
+    	this.FAboxCant2.setDisable(true);
+    	this.FAboxCant2.getItems().clear();
+    	this.FAboxCant2.getItems().add(null);
+    	this.FAboxCant2.getItems().addAll(model.getCantieri());
+    	this.FAtxtLavorazione.setDisable(true);
+    	this.FAtxtLavorazione.clear();
+    	this.FAboxLavorazioni2.setDisable(true);
+    	this.FAboxLavorazioni2.getItems().clear();
+    	this.FAboxLavorazioni2.getItems().add(null);
+    	this.FAboxLavorazioni2.getItems().addAll(model.getDescrizioniLavorazioni());
+    	this.FAtxtRicercaVoce2.setDisable(true);
+    	this.FAtxtRicercaVoce2.clear();
+    	this.FAboxVoce2.setDisable(true);
+    	this.FAboxVoce2.getItems().clear();
+    	this.FAboxVoce2.getItems().add(null);
+    	this.FAboxVoce2.getItems().addAll(model.getVociCapitolato());
+    	this.FAtxtImportNoIva.setDisable(true);
+    	this.FAtxtImportoTot.setDisable(true);
+    	this.FAtxtImportNoIva.clear();
+    	this.FAtxtImportoTot.clear();
+    	this.FAbtnInserisci2.setDisable(true);
+    	this.FAtxtNoteImporto.clear();
+    	this.FAtxtNoteImporto.setDisable(true);
+    	this.FAbtnConferma.setDisable(true);
+    	this.f2 = null;
+    	
     }
     
     private void rimuoviInputExtraAggiornaBox (List<Fattura> list) {
@@ -1646,8 +1894,6 @@ public class FXMLController {
         assert FAboxFatture != null : "fx:id=\"FAboxFatture\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAbtnAnnulla != null : "fx:id=\"FAbtnAnnulla\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAtxtNoteFattura != null : "fx:id=\"FAtxtNoteFattura\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert FAbtnCancNoteFattura != null : "fx:id=\"FAbtnCancNoteFattura\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert FAbtnModNoteFattura != null : "fx:id=\"FAbtnModNoteFattura\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAboxImporti != null : "fx:id=\"FAboxImporti\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAboxCant2 != null : "fx:id=\"FAboxCant2\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAtxtLavorazione != null : "fx:id=\"FAtxtLavorazione\" was not injected: check your FXML file 'Scene.fxml'.";
@@ -1660,7 +1906,6 @@ public class FXMLController {
         assert FAbtnInserisci2 != null : "fx:id=\"FAbtnInserisci2\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAtxtRicercaCant2 != null : "fx:id=\"FAtxtRicercaCant2\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAtxtNoteImporto != null : "fx:id=\"FAtxtNoteImporto\" was not injected: check your FXML file 'Scene.fxml'.";
-        assert FAbtnCancInserimento != null : "fx:id=\"FAbtnCancInserimento\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAbtnConferma != null : "fx:id=\"FAbtnConferma\" was not injected: check your FXML file 'Scene.fxml'.";
         assert FAbtnReset != null : "fx:id=\"FAbtnReset\" was not injected: check your FXML file 'Scene.fxml'.";
     }
@@ -1723,6 +1968,29 @@ public class FXMLController {
     	this.lastVociList = this.FAboxVoce.getItems();
     	this.FAboxFatture.getItems().clear();
     	this.FAboxFatture.getItems().addAll(model.getFatture());
+    	this.FAtxtNoteFattura.setDisable(true);
+    	this.FAboxImporti.setDisable(true);
+    	this.FAbtnCanImporto.setDisable(true);
+    	this.FAtxtRicercaCant2.setDisable(true);
+    	this.FAboxCant2.setDisable(true);
+    	this.FAboxCant2.getItems().clear();
+    	this.FAboxCant2.getItems().add(null);	
+    	this.FAboxCant2.getItems().addAll(model.getCantieri());
+    	this.FAtxtLavorazione.setDisable(true);
+    	this.FAboxLavorazioni2.setDisable(true);
+    	this.FAboxLavorazioni2.getItems().clear();
+    	this.FAboxLavorazioni2.getItems().add(null);
+    	this.FAboxLavorazioni2.getItems().addAll(model.getDescrizioniLavorazioni());
+    	this.FAtxtRicercaVoce2.setDisable(true);
+    	this.FAboxVoce2.setDisable(true);
+    	this.FAboxVoce2.getItems().clear();
+    	this.FAboxVoce2.getItems().add(null);	
+    	this.FAboxVoce2.getItems().addAll(model.getVociCapitolato());
+    	this.FAtxtImportNoIva.setDisable(true);
+    	this.FAtxtImportoTot.setDisable(true);
+    	this.FAbtnInserisci2.setDisable(true);
+    	this.FAtxtNoteImporto.setDisable(true);
+    	this.FAbtnConferma.setDisable(true);
     	this.forn = new ArrayList<>();
     	this.cant = new ArrayList<>();
     	this.lav = new ArrayList<>();
@@ -1730,6 +1998,7 @@ public class FXMLController {
     	this.min = null;
     	this.max = null;
     	this.inputList = new TreeMap<>();
+    	this.f2 = null;
     }
     
 }

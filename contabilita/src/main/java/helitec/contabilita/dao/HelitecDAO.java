@@ -288,6 +288,23 @@ public class HelitecDAO {
 		}
 	}
 	
+	public void eliminaFattura(Fattura f) {
+		String sql = "DELETE FROM fattura WHERE numero = ? AND `data`= ? AND fornitore = ?";
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, f.getNumero());
+			st.setDate(2, Date.valueOf(f.getData()));
+			st.setString(3, f.getFornitore());
+			st.executeQuery() ;
+			conn.close();
+	} catch (SQLException e) {
+		e.printStackTrace();
+		System.out.println("Errore connessione al database");
+		throw new RuntimeException("Error Connection Database");
+		}
+	}
+	
 	public void aggiungiImportiFattura(Fattura f) {
 		String sql = "INSERT INTO importo_lavorazione VALUES (?,?,?,?,?,?,?,?,?)";
 		for(Importo i : f.getImporti()) {
@@ -327,7 +344,26 @@ public class HelitecDAO {
 		}
 	}
 	
-
+	public void eliminaImportiFattura(Fattura f) {
+		String sql = "DELETE FROM importo_lavorazione WHERE numero = ? AND numero_fattura = ? AND data_fattura= ? AND fornitore = ?";
+		for(Importo i : f.getImporti()) {
+			try {
+				Connection conn = DBConnect.getConnection();
+				PreparedStatement st = conn.prepareStatement(sql);
+				st.setInt(1, i.getNumero());
+				st.setString(2, f.getNumero());
+				st.setDate(3, Date.valueOf(f.getData()));
+				st.setString(4, f.getFornitore());
+				st.executeQuery() ;
+				conn.close();
+			} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+			}
+		}
+	}
+	
 	public void aggiungiLavorazioni(List<Lavorazione> nuoveLav) {
 		String sql = "INSERT INTO lavorazione VALUES (?,?,?,?)";
 		for(Lavorazione l : nuoveLav) {
@@ -353,6 +389,24 @@ public class HelitecDAO {
 				e.printStackTrace();
 				System.out.println("Errore connessione al database");
 				throw new RuntimeException("Error Connection Database");
+			}
+		}
+	}
+	
+	public void eliminaLavorazioni(List<Lavorazione> list) {
+		String sql = "DELETE FROM lavorazione WHERE descrizione = ? AND cantiere = ?";
+		for(Lavorazione l : list) {
+			try {
+				Connection conn = DBConnect.getConnection();
+				PreparedStatement st = conn.prepareStatement(sql);
+				st.setString(1, l.getDescrizione());
+				st.setInt(2,l.getCantiere().getNumero());
+				st.executeQuery() ;
+				conn.close();
+			} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
 			}
 		}
 	}
@@ -440,6 +494,25 @@ public class HelitecDAO {
 				throw new RuntimeException("Error Connection Database");
 			}
 		}	
+	}
+	
+	public void eliminaVociCapitolatoCantiere(List<VoceCapitolatoCantiere> oldVcc) {
+		String sql = "DELETE FROM voce_cantiere WHERE voce_capitolato = ? AND cantiere = ?";
+		for(VoceCapitolatoCantiere vcc : oldVcc) {
+			try {
+				Connection conn = DBConnect.getConnection();
+				PreparedStatement st = conn.prepareStatement(sql);
+				st.setString(1, vcc.getVoceCapitolato());
+				st.setInt(2, vcc.getCantiere().getNumero());
+				st.executeQuery() ;
+				conn.close();
+			} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+			}
+		}
+		
 	}
 	
 	public void aggiungiFornitore(String fornitore) {
@@ -555,7 +628,6 @@ public class HelitecDAO {
 				throw new RuntimeException("Error Connection Database");
 			}
 		}
-		
 	}
 	
 }

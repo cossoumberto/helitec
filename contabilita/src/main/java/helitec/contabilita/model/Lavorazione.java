@@ -83,6 +83,11 @@ public class Lavorazione {
 		this.aggiornaImportoTotLavorazione();
 	}
 	
+	public void eliminaImporto (Importo i) {
+		this.importi.remove(i);
+		this.aggiornaImportoTotLavorazione();
+	}
+	
 	public void aggiornaImportoTotLavorazione() {
 		Double d = 0.0;
 		for(Importo i : this.importi ) {

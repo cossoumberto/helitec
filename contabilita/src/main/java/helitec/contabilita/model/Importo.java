@@ -18,6 +18,16 @@ public class Importo implements Comparable<Importo>{
 		this.importoIva = importoIva;
 		this.note = note;
 	}
+	
+	public Importo(Importo i) {
+		super();
+		this.numero = i.numero;
+		this.fattura = i.fattura;
+		this.lavorazione = i.lavorazione;
+		this.importo = i.importo;
+		this.importoIva = i.importoIva;
+		this.note = i.note;
+	}
 
 	public Integer getNumero() {
 		return numero;
@@ -66,9 +76,8 @@ public class Importo implements Comparable<Importo>{
 	public void setNote(String note) {
 		this.note = note;
 	}
-
-	@Override
-	public String toString() {
+	
+	public String toStringFattura() {
 		String s = numero + ": ";
 		if(lavorazione!=null) {
 			if(lavorazione.getCantiere()==null)
@@ -88,7 +97,39 @@ public class Importo implements Comparable<Importo>{
 			s += "-- / --\n     --\n     " +  + this.importo + " / " + this.importoIva;
 		if(note!=null)
 			s += "\n     Note: " + note;
-		return s;			 
+		return s;	
+	}
+	
+	public boolean equalsTotale(Importo i) {
+		if(i.fattura.equals(this.fattura) && i.importo.equals(this.importo) && i.importoIva.equals(this.importoIva)
+				&& i.lavorazione.equals(this.lavorazione) 
+				&& ( (i.lavorazione.getVoceCapitolato()==null && this.lavorazione.getVoceCapitolato()==null)
+						|| (i.lavorazione.getVoceCapitolato()!=null && this.lavorazione.getVoceCapitolato()!=null 
+							&& i.lavorazione.getVoceCapitolato().equals(this.lavorazione.getVoceCapitolato())) )
+				&& ( (i.note==null && this.note==null) || i.note!=null && this.note!=null && i.note.equals(this.note) )
+				&& i.numero.equals(this.numero)) {
+			return true;
+		} 
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		if(this.numero!=null) {
+			String s = numero + ": ";
+			if(lavorazione!=null) {
+				if(lavorazione.getCantiere()==null)
+					s += "-- / ";
+				else 
+					s += lavorazione.getCantiere().toString() + " / ";
+				if(lavorazione.getDescrizione()==null)
+					s += "--";
+				else 
+					s += lavorazione.getDescrizione();
+			} else 
+				s += "-- / --";
+			return s;			
+		} else return "Inserisci nuovo importo";
 	}
 
 	@Override
@@ -96,7 +137,6 @@ public class Importo implements Comparable<Importo>{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((fattura == null) ? 0 : fattura.hashCode());
-		result = prime * result + ((lavorazione == null) ? 0 : lavorazione.hashCode());
 		result = prime * result + ((numero == null) ? 0 : numero.hashCode());
 		return result;
 	}
@@ -114,11 +154,6 @@ public class Importo implements Comparable<Importo>{
 			if (other.fattura != null)
 				return false;
 		} else if (!fattura.equals(other.fattura))
-			return false;
-		if (lavorazione == null) {
-			if (other.lavorazione != null)
-				return false;
-		} else if (!lavorazione.equals(other.lavorazione))
 			return false;
 		if (numero == null) {
 			if (other.numero != null)

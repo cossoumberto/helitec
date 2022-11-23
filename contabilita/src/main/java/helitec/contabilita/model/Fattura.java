@@ -171,9 +171,14 @@ public class Fattura implements Comparable<Fattura>{
 		return note;
 	}
 
-
 	public void setNote(String note) {
 		this.note = note;
+	}
+	
+	public void rimuoviImporti() {
+		this.importi.clear();
+		this.importoNoIva = null;
+		this.importoTot = null;
 	}
 
 	public List<Importo> getImporti() {
@@ -196,6 +201,15 @@ public class Fattura implements Comparable<Fattura>{
 	
 	public void addImportoDB(Importo i) {
 		this.importi.add(i);
+	}
+	
+	public void cancImporto(Importo i) {
+		if(this.importi.contains(i)) {
+			importi.remove(i);
+			for(Importo j : this.importi)
+				j.setNumero(importi.indexOf(j)+1);
+		}
+		this.calcolaImportoTot();
 	}
 	
 	public void cancLastImporto () {
@@ -231,12 +245,48 @@ public class Fattura implements Comparable<Fattura>{
 				list.add(i.getLavorazione().getVoceCapitolato());
 		return list;
 	}
+	
+	public void calcolaImportoTot() {
+		Double d1 = 0.0;
+		Double d2 = 0.0;
+		for(Importo i : this.importi) {
+			d1 += i.getImporto();
+			BigDecimal x = new BigDecimal(d1).setScale(2, RoundingMode.HALF_EVEN);
+			d1 = x.doubleValue();
+			d2 += i.getImportoIva();
+			BigDecimal y = new BigDecimal(d2).setScale(2, RoundingMode.HALF_EVEN);
+			d2 = y.doubleValue();
+		}
+		this.importoNoIva = d1;
+		this.importoTot = d2;
+		
+	}
+
+	public boolean equalsTotale(Fattura f) {
+		if(f.numero.equals(this.numero)) 
+			if(f.fornitore.equals(this.fornitore)) 
+				if(f.data.equals(this.data)) 
+					if(f.importoNoIva.equals(this.importoNoIva)) 
+						if(f.iva.equals(this.iva)) 
+							if(f.importoTot.equals(this.importoTot)) 
+								if( (f.importoPagato==null && this.importoPagato==null) || 
+										(this.importoPagato!=null && f.importoPagato!=null 
+										&& f.importoPagato.equals(this.importoPagato)) ) 
+									if( (f.note==null && this.note==null) || (f.note!=null && this.note!=null && f.note.equals(this.note)) ) 
+										if(f.importi.size()==this.importi.size()) {
+											for(Importo i : f.importi)
+												if(!i.equalsTotale(this.importi.get(f.importi.indexOf(i))))
+														return false;
+											return true;
+										}
+		return false;
+	}
 
 	public String toStringConImporti() {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		String s = "Fornitore: " + fornitore + "\nFattura " + numero + " del " + data.format(formatter) + "     IVA = " + iva +"%\n";
 		for (Importo i : importi)
-			s += "\n\n" + i.toString();
+			s += "\n\n" + i.toStringFattura();
 		if(this.note!=null)
 			s += "\n\n\n" + this.note;
 		return s;

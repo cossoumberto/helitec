@@ -1,5 +1,8 @@
 package helitec.contabilita.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class VoceCapitolatoCantiere {
 	
 	private String voceCapitolato;
@@ -91,6 +94,14 @@ public class VoceCapitolatoCantiere {
 		} else if (!voceCapitolato.equals(other.voceCapitolato))
 			return false;
 		return true;
+	}
+
+	public void sommaImporto(Double importo) {
+		if(this.importoPagato==null)
+			this.importoPagato = 0.0;
+		this.importoPagato += importo;
+		BigDecimal x = new BigDecimal(this.importoPagato).setScale(2, RoundingMode.HALF_EVEN);
+		this.importoPagato = x.doubleValue();
 	}
 
 }
