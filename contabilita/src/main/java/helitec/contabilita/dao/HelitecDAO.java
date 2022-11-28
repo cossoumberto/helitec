@@ -394,14 +394,20 @@ public class HelitecDAO {
 	}
 	
 	public void eliminaLavorazioni(List<Lavorazione> list) {
-		String sql = "DELETE FROM lavorazione WHERE descrizione = ? AND cantiere = ?";
+		String sql = "DELETE FROM lavorazione WHERE descrizione = ? AND ";
 		for(Lavorazione l : list) {
+			if(l.getCantiere()!=null)
+				sql += "cantiere = ?";
+			else
+				sql += "(cantiere IS NULL)";
 			try {
 				Connection conn = DBConnect.getConnection();
 				PreparedStatement st = conn.prepareStatement(sql);
 				st.setString(1, l.getDescrizione());
-				st.setInt(2,l.getCantiere().getNumero());
+				if(l.getCantiere()!=null)
+					st.setInt(2,l.getCantiere().getNumero());
 				st.executeQuery() ;
+				sql = "DELETE FROM lavorazione WHERE descrizione = ? AND ";
 				conn.close();
 			} catch (SQLException e) {
 			e.printStackTrace();
@@ -412,15 +418,21 @@ public class HelitecDAO {
 	}
 	
 	public void aggiornaImportiLavorazioni(List<Lavorazione> lavMod) {
-		String sql = "UPDATE lavorazione SET importo = ? WHERE cantiere = ? AND descrizione = ?";
+		String sql = "UPDATE lavorazione SET importo = ? WHERE descrizione = ? AND ";
 		for(Lavorazione l : lavMod) {
+			if(l.getCantiere()!=null)
+				sql += "cantiere = ?";
+			else
+				sql += "(cantiere IS NULL)";
 			try {
 				Connection conn = DBConnect.getConnection();
 				PreparedStatement st = conn.prepareStatement(sql);
 				st.setDouble(1, l.getImporto());
-				st.setInt(2, l.getCantiere().getNumero());
-				st.setString(3, l.getDescrizione());
+				st.setString(2, l.getDescrizione());
+				if(l.getCantiere()!=null)
+					st.setInt(3, l.getCantiere().getNumero());
 				st.executeQuery();
+				sql = "UPDATE lavorazione SET importo = ? WHERE descrizione = ? AND ";
 				conn.close();
 			} catch (SQLException e) {
 				e.printStackTrace();

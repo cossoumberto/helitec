@@ -167,8 +167,6 @@ public class FXMLController {
     			this.IFtxtArea.appendText(" e attribuita a pagamento esistente");
     		else if(i==2)
     			this.IFtxtArea.appendText("\nImpossibile attrubuire pagamento alla fattura senza importo pagamento relativo");
-    		/*else if(i==-1)
-    			this.IFtxtArea.appendText("\nErrore: incongruenza date fattura-pagamento");*/ //NECESSARIO?
     		this.f = null;
     		this.ll = new ArrayList<>();
     		this.IFtxtFornitore.setEditable(true);

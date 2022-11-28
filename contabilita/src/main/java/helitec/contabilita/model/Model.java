@@ -35,6 +35,15 @@ public class Model {
 		this.fornitori = dao.listFornitori();
 		this.pagamenti = dao.listPagamenti();
 		dao.setPagamentiFattura(pagamenti, fatture);
+		//
+		this.aggiornaImportiCantieri(this.cantieri);
+		dao.aggiornaImportiCantiere(cantieri);
+		this.aggiornaImportiVociCapitolatoCantiere(vociCapitolatoCantiere);
+		dao.aggiornaImportiVociCapitolato(vociCapitolatoCantiere);
+		for(Lavorazione l : this.lavorazioni)
+			l.aggiornaImportoTotLavorazione();
+		dao.aggiornaImportiLavorazioni(lavorazioni);
+		
 	}
 	
 	public List<Cantiere> getCantieri() {
@@ -148,7 +157,7 @@ public class Model {
 				} else {
 					for(Importo i : l.getImporti())
 						lavorazioni.get(lavorazioni.indexOf(l)).addImporto(i);
-					lavMod.add(l);
+					lavMod.add(lavorazioni.get(lavorazioni.indexOf(l)));
 				}
 			}
 		}
