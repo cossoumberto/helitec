@@ -41,6 +41,7 @@ public class FXMLController {
 	// TAB INSERISCI FATTURA
 	//
 	//
+	
 	//
 
 	private Fattura f;
