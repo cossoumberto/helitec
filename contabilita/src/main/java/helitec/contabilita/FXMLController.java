@@ -41,7 +41,7 @@ public class FXMLController {
 	// TAB INSERISCI FATTURA
 	//
 	//
-	
+	//
 	//
 
 	private Fattura f;
@@ -1586,11 +1586,6 @@ public class FXMLController {
 	    		inputList.remove(i);
 	    	inputList = this.ricalcolaInputIndex(inputList);
     	}
-    	//	//set date max e min 
-    	if(min!=null)
-    		min = model.getDataMinFatture(list);
-    	if(max!=null)
-    		max = model.getDataMaxFatture(list);
     	//Aggiorno le varie box con le possibili scelte
     	//	//Box fatture
     	this.FAboxFatture.getItems().clear();
@@ -1750,9 +1745,9 @@ public class FXMLController {
 		this.FAtxtArea.setText("Elenco fatture richieste");
     	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		if(min!=null)
-			this.FAtxtArea.appendText(" dal " + min.format(formatter));
+			this.FAtxtArea.appendText(" dal " + model.getDataMinFatture(fatture).format(formatter));
 		if(max!=null)
-			this.FAtxtArea.appendText(" fino al " + max.format(formatter));
+			this.FAtxtArea.appendText(" fino al " + model.getDataMaxFatture(fatture).format(formatter));
 		List<Cantiere> cStamp = new ArrayList<>(cant);
 		if(cant.contains(null)) {
 			int i = cant.indexOf(null);

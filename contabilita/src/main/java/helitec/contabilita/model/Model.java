@@ -36,14 +36,13 @@ public class Model {
 		this.pagamenti = dao.listPagamenti();
 		dao.setPagamentiFattura(pagamenti, fatture);
 		//
-		this.aggiornaImportiCantieri(this.cantieri);
-		dao.aggiornaImportiCantiere(cantieri);
-		this.aggiornaImportiVociCapitolatoCantiere(vociCapitolatoCantiere);
-		dao.aggiornaImportiVociCapitolato(vociCapitolatoCantiere);
 		for(Lavorazione l : this.lavorazioni)
 			l.aggiornaImportoTotLavorazione();
 		dao.aggiornaImportiLavorazioni(lavorazioni);
-		
+		this.aggiornaImportiCantieri(this.cantieri);
+		dao.aggiornaImportiCantiere(cantieri);
+		this.aggiornaImportiVociCapitolatoCantiere(vociCapitolatoCantiere);
+		dao.aggiornaImportiVociCapitolato(vociCapitolatoCantiere);	
 	}
 	
 	public List<Cantiere> getCantieri() {

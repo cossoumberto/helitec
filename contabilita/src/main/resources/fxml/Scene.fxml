@@ -311,7 +311,7 @@
                         <Button maxWidth="170.0" mnemonicParsing="false" onAction="#IPinserisci" prefWidth="170.0" text="Ricerca" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                         <DatePicker maxWidth="170.0" prefWidth="170.0" promptText="a" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <ComboBox maxWidth="170.0" prefWidth="170.0" promptText="Fornitore" GridPane.columnIndex="1" />
-                        <TextField maxWidth="170.0" prefWidth="170.0" promptText="Ricerca Fornitore" />
+                        <TextField maxWidth="170.0" prefWidth="170.0" promptText="Ricerca Fornitore" GridPane.halignment="CENTER" />
                      </children>
                      <padding>
                         <Insets left="20.0" right="20.0" top="20.0" />
