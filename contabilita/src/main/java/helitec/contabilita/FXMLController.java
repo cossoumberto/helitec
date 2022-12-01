@@ -328,12 +328,14 @@ public class FXMLController {
     	this.IFtxtRicercaCantiere.clear();
     	this.IFboxCantieri.setValue(null);
     	this.IFboxCantieri.getItems().clear();
+    	this.IFboxCantieri.getItems().add(null);
     	this.IFboxCantieri.getItems().addAll(model.getCantieri());
     	this.IFtxtLavorazione.clear();
     	this.IFboxLavorazioni.getItems().clear();
     	this.IFboxLavorazioni.getItems().addAll(model.getDescrizioniLavorazioni());
     	this.IFtxtRicercaVoce.clear();
     	this.IFboxVoci.getItems().clear();
+    	this.IFboxVoci.getItems().add(null);
     	this.IFboxVoci.getItems().addAll(model.getVociCapitolato());
     	this.IFtxtImportoNoIva.clear();
     	this.IFtxtImportoTot.clear();
