@@ -1750,6 +1750,7 @@ public class FXMLController {
 			this.FAtxtArea.appendText(" dal " + model.getDataMinFatture(fatture).format(formatter));
 		if(max!=null)
 			this.FAtxtArea.appendText(" fino al " + model.getDataMaxFatture(fatture).format(formatter));
+		this.FAtxtArea.appendText("		" + fatture.size() + " fatture");
 		List<Cantiere> cStamp = new ArrayList<>(cant);
 		if(cant.contains(null)) {
 			int i = cant.indexOf(null);
