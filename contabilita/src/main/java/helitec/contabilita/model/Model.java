@@ -35,7 +35,6 @@ public class Model {
 		this.fornitori = dao.listFornitori();
 		this.pagamenti = dao.listPagamenti();
 		dao.setPagamentiFattura(pagamenti, fatture);
-		//
 		for(Lavorazione l : this.lavorazioni)
 			l.aggiornaImportoTotLavorazione();
 		dao.aggiornaImportiLavorazioni(lavorazioni);

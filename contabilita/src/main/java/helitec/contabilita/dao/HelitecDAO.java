@@ -65,17 +65,32 @@ public class HelitecDAO {
 	}
 	
 	public List<Lavorazione> listLavorazioni(List <Cantiere> cantieri, List<VoceCapitolatoCantiere> vociCapitolatoCantieri) {
-		String sql = "SELECT * FROM lavorazione";
+		String sql1 = "SELECT * FROM lavorazione WHERE cantiere IS NULL";
 		List<Lavorazione> result = new ArrayList<>();
-		Connection conn = DBConnect.getConnection();
+		Connection conn1 = DBConnect.getConnection();
 		try {
-			PreparedStatement st = conn.prepareStatement(sql);
+			PreparedStatement st = conn1.prepareStatement(sql1);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				Double d1 = res.getDouble("importo");
+				if(d1==0) d1=null;
+				result.add(new Lavorazione(res.getString("descrizione"), res.getString("voce_capitolato"), null,
+						null, d1));
+			}
+			conn1.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		String sql2 = "SELECT * FROM lavorazione WHERE cantiere IS NOT NULL";
+		Connection conn2 = DBConnect.getConnection();
+		try {
+			PreparedStatement st = conn2.prepareStatement(sql2);
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
 				Cantiere cantiere = null;
 				for(Cantiere c : cantieri)
-					if(res.getString("cantiere")!=null)
-						if(c.getNumero().equals(res.getInt("cantiere")))
+					if(c.getNumero().equals(res.getInt("cantiere")))
 							cantiere = c;
 				VoceCapitolatoCantiere voceCapitolatoCantiere = null;
 				for(VoceCapitolatoCantiere vcc : vociCapitolatoCantieri)
@@ -86,7 +101,7 @@ public class HelitecDAO {
 				result.add(new Lavorazione(res.getString("descrizione"), res.getString("voce_capitolato"), cantiere,
 						voceCapitolatoCantiere, d1));
 			}
-			conn.close();
+			conn2.close();
 			return result;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -102,11 +117,16 @@ public class HelitecDAO {
 			PreparedStatement st = conn.prepareStatement(sql);
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
+				Integer num = null;
+				if(res.getInt("numero")==0)
+					num = 0;
+				else 
+					num = res.getInt("numero");
 				Double d1= res.getDouble("preventivo");
 				Double d2 = res.getDouble("importo_tot");
 				if(d1==0) d1=null;
 				if(d2==0) d2=null;
-				result.add(new Cantiere(res.getInt("numero"), res.getString("denominazione"), res.getString("indirizzo"),
+				result.add(new Cantiere(num, res.getString("denominazione"), res.getString("indirizzo"),
 						res.getString("comune"), d1, d2));
 			}
 			conn.close();
@@ -182,10 +202,10 @@ public class HelitecDAO {
 	}
 	
 	public void setImporti(List<Fattura> fatture, List<Lavorazione> lavorazioni) {
-		String sql = "SELECT * FROM importo_lavorazione";
-		Connection conn = DBConnect.getConnection();
+		String sql1 = "SELECT * FROM importo_lavorazione WHERE (cantiere IS NULL)";
+		Connection conn1 = DBConnect.getConnection();
 		try {
-			PreparedStatement st = conn.prepareStatement(sql);
+			PreparedStatement st = conn1.prepareStatement(sql1);
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
 				Fattura fattura = new Fattura();
@@ -197,13 +217,7 @@ public class HelitecDAO {
 				else fattura = null;
 				Lavorazione lavorazione = new Lavorazione();
 				lavorazione.setDescrizione(res.getString("descrizione"));
-				for(Lavorazione l : lavorazioni) {
-					if(l.getCantiere()!=null && res.getString("cantiere")!=null &&
-							l.getCantiere().getNumero().equals(res.getInt("cantiere")))
-						lavorazione.setCantiere(l.getCantiere());
-					else if(l.getCantiere()==null && res.getString("cantiere")==null)
-						lavorazione.setCantiere(null);
-				}
+				lavorazione.setCantiere(null);
 				if(lavorazioni.contains(lavorazione))
 					lavorazione = lavorazioni.get(lavorazioni.indexOf(lavorazione));
 				else lavorazione = null;
@@ -215,7 +229,40 @@ public class HelitecDAO {
 				i.getFattura().addImportoDB(i);
 				i.getLavorazione().addImportoDB(i);
 			}
-			conn.close();
+			conn1.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		String sql2 = "SELECT * FROM importo_lavorazione WHERE (cantiere IS NOT NULL)";
+		Connection conn2 = DBConnect.getConnection();
+		try {
+			PreparedStatement st = conn2.prepareStatement(sql2);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				Fattura fattura = new Fattura();
+				fattura.setNumero(res.getString("numero_fattura"));
+				fattura.setData(res.getDate("data_fattura").toLocalDate());
+				fattura.setFornitore(res.getString("fornitore"));
+				if(fatture.contains(fattura))
+					fattura = fatture.get(fatture.indexOf(fattura));
+				else fattura = null;
+				Lavorazione lavorazione = new Lavorazione();
+				lavorazione.setDescrizione(res.getString("descrizione"));
+				for(Lavorazione l : lavorazioni)
+					if(l.getCantiere()!=null && l.getCantiere().getNumero().equals(res.getInt("cantiere")))
+							lavorazione.setCantiere(l.getCantiere());
+				if(lavorazioni.contains(lavorazione))
+					lavorazione = lavorazioni.get(lavorazioni.indexOf(lavorazione));
+				else lavorazione = null;
+				Double d1= res.getDouble("importo");
+				Double d2 = res.getDouble("importo_iva");
+				if(d1==0) d1=null;
+				if(d2==0) d2=null;
+				Importo i = new Importo(res.getInt("numero"), fattura, lavorazione, d1, d2, res.getString("note"));
+				i.getFattura().addImportoDB(i);
+				i.getLavorazione().addImportoDB(i);
+			}
+			conn2.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
