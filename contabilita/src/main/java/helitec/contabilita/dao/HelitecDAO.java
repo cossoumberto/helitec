@@ -258,7 +258,7 @@ public class HelitecDAO {
 				Double d2 = res.getDouble("importo_iva");
 				if(d1==0) d1=null;
 				if(d2==0) d2=null;
-				Importo i = new Importo(res.getInt("numero"), fattura, lavorazione, d1, d2, res.getString("note"));
+				Importo i = new Importo(res.getInt("numero"), fattura, lavorazione, d1, d2, res.getString("note"));			
 				i.getFattura().addImportoDB(i);
 				i.getLavorazione().addImportoDB(i);
 			}
