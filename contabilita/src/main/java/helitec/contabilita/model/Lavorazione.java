@@ -3,6 +3,7 @@ package helitec.contabilita.model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Lavorazione {
@@ -88,6 +89,10 @@ public class Lavorazione {
 		this.aggiornaImportoTotLavorazione();
 	}
 	
+	public void ordinaImporti() {
+		Collections.sort(importi);
+	}
+	
 	public void aggiornaImportoTotLavorazione() {
 		Double d = 0.0;
 		for(Importo i : this.importi ) {
@@ -139,4 +144,5 @@ public class Lavorazione {
 			return false;
 		return true;
 	}
+	
 }

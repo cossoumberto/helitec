@@ -31,12 +31,16 @@ public class Model {
 		this.vociCapitolatoCantiere = dao.listVociCapitolatoCantiere(cantieri);
 		this.lavorazioni = dao.listLavorazioni(cantieri, vociCapitolatoCantiere);
 		dao.setImporti(fatture, lavorazioni);
+		for(Fattura f : this.fatture)
+			f.ordinaImporti();
 		this.vociCapitolato = dao.listVociCapitolato();
 		this.fornitori = dao.listFornitori();
 		this.pagamenti = dao.listPagamenti();
 		dao.setPagamentiFattura(pagamenti, fatture);
-		for(Lavorazione l : this.lavorazioni)
+		for(Lavorazione l : this.lavorazioni) {
 			l.aggiornaImportoTotLavorazione();
+			l.ordinaImporti();
+		}
 		dao.aggiornaImportiLavorazioni(lavorazioni);
 		this.aggiornaImportiCantieri(this.cantieri);
 		dao.aggiornaImportiCantiere(cantieri);

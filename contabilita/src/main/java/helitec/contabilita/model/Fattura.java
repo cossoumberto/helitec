@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import helitec.contabilita.model.PagamentoFattura.Intero;
@@ -212,6 +213,10 @@ public class Fattura implements Comparable<Fattura>{
 		this.calcolaImportoTot();
 	}
 	
+	public void ordinaImporti() {
+		Collections.sort(importi);
+	}	
+	
 	public void cancLastImporto () {
 		this.importoNoIva -= importi.get(importi.size()-1).getImporto();
 		BigDecimal x = new BigDecimal(this.importoNoIva).setScale(2, RoundingMode.HALF_EVEN);
@@ -353,6 +358,6 @@ public class Fattura implements Comparable<Fattura>{
 		else if(!this.data.equals(o.data))
 			return this.data.compareTo(o.data);
 		else return this.numero.compareTo(o.numero);
-	}	
+	}
 }
 
