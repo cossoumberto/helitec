@@ -1913,7 +1913,7 @@ public class FXMLController {
     	this.IFboxFornitori.getItems().clear();
     	this.IFboxFornitori.getItems().addAll(model.getFornitori());
     	this.IFboxIVA.getItems().clear();
-    	this.IFboxIVA.getItems().addAll(0, 4, 10, 22);
+    	this.IFboxIVA.getItems().addAll(0, 4, 5, 10, 22);
     	this.IFboxCantieri.getItems().clear();
     	this.IFboxCantieri.getItems().add(null);
     	this.IFboxCantieri.getItems().addAll(model.getCantieri());
