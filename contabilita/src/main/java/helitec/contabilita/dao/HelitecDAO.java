@@ -50,9 +50,9 @@ public class HelitecDAO {
 				Double d1 = res.getDouble("importo_no_iva");
 				Double d2= res.getDouble("importo_tot");
 				Double d3 = res.getDouble("importo_pagato");
-				if(d1==0) d1=null;
+				/*if(d1==0) d1=null;
 				if(d2==0) d2=null;
-				if(d3==0) d3=null;
+				if(d3==0) d3=null;*/
  				result.add(new Fattura(res.getString("numero"), res.getDate("data").toLocalDate(), res.getString("fornitore"),
 						d1, res.getInt("iva"), d2, d3, res.getString("note")));
 			}
@@ -73,7 +73,7 @@ public class HelitecDAO {
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
 				Double d1 = res.getDouble("importo");
-				if(d1==0) d1=null;
+				//if(d1==0) d1=null;
 				result.add(new Lavorazione(res.getString("descrizione"), res.getString("voce_capitolato"), null,
 						null, d1));
 			}
@@ -97,7 +97,7 @@ public class HelitecDAO {
 					if(vcc.getCantiere().equals(cantiere) && vcc.getVoceCapitolato().equals(res.getString("voce_capitolato")))
 							voceCapitolatoCantiere = vcc;
 				Double d1 = res.getDouble("importo");
-				if(d1==0) d1=null;
+				//if(d1==0) d1=null;
 				result.add(new Lavorazione(res.getString("descrizione"), res.getString("voce_capitolato"), cantiere,
 						voceCapitolatoCantiere, d1));
 			}
@@ -223,8 +223,8 @@ public class HelitecDAO {
 				else lavorazione = null;
 				Double d1= res.getDouble("importo");
 				Double d2 = res.getDouble("importo_iva");
-				if(d1==0) d1=null;
-				if(d2==0) d2=null;
+				//if(d1==0) d1=null;
+				//if(d2==0) d2=null;
 				Importo i = new Importo(res.getInt("numero"), fattura, lavorazione, d1, d2, res.getString("note"));
 				i.getFattura().addImportoDB(i);
 				i.getLavorazione().addImportoDB(i);
@@ -256,8 +256,8 @@ public class HelitecDAO {
 				else lavorazione = null;
 				Double d1= res.getDouble("importo");
 				Double d2 = res.getDouble("importo_iva");
-				if(d1==0) d1=null;
-				if(d2==0) d2=null;
+				//if(d1==0) d1=null;
+				//if(d2==0) d2=null;
 				Importo i = new Importo(res.getInt("numero"), fattura, lavorazione, d1, d2, res.getString("note"));			
 				i.getFattura().addImportoDB(i);
 				i.getLavorazione().addImportoDB(i);
